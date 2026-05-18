@@ -18,8 +18,8 @@
 - [🔄 端到端链路](#-端到端链路)
 - [🧠 数据与模型目录说明](#-数据与模型目录说明)
 - [⚙️ 配置要点](#️-配置要点)
-- [⚡ 快速运行](#-快速运行)
 - [📊 训练与评测](#-训练与评测)
+- [⚡ 快速运行](#-快速运行)
 - [⚠️ 已知限制](#️-已知限制)
 
 ---
@@ -124,8 +124,8 @@ CarVoice_Agent/
 │  │  ├─ intent/                 # 意图数据（train/dev/test/class）
 │  │  └─ reject/                 # 拒识数据（train/dev/test/class）
 │  ├─ models/
-│  │  ├─ bert.py
-│  │  └─ bert_tiny.py
+│  │  ├─ bert.py                  # 意图识别模型（bert-large，平衡精度与效率）
+│  │  └─ bert_tiny.py             # 拒识模型（3层BERT，极致效率，小模型大数据）
 │  ├─ pretrained/                # 预训练模型目录
 │  │  ├─ chinese_roberta_wwm_ext/
 │  │  └─ roberta_tiny_clue/
@@ -214,6 +214,8 @@ start.py (SocketIO 入口)
 | `config/class.txt` | 意图 ID 与函数映射（线上推理关键字典） |
 | `config/slot_intent.json` | 槽位字段标准化映射 |
 
+> **说明**：训练数据来源于线上，由专门的工程团队负责数据采集、清洗与标注。
+
 ### 📦 `pretrained` 与 `saved` 的作用
 
 > 这两个目录是训练链路中的关键目录，项目默认会使用并依赖它们。
@@ -272,6 +274,51 @@ export ENTRY_URL="http://127.0.0.1:8080/request_nlu"
 
 ---
 
+## 📊 训练与评测
+
+### 1) 训练前准备
+
+训练前需先加载环境变量：
+
+```bash
+source config/config.ini
+```
+
+### 2) 训练分类模型
+
+```bash
+cd train
+# 训练意图模型（bert-large，平衡精度与效率）
+python run.py --model bert --data intent
+
+# 训练拒识模型（bert-tiny，极致效率，小模型大数据）
+python run.py --model bert_tiny --data reject
+```
+
+训练完成后会输出到：
+
+- `saved/intent/bert.ckpt`
+- `saved/reject/bert_tiny.ckpt`
+
+### 3) 服务化推理
+
+- `train/intent_infer.py` 支持 TopK 意图召回
+- `train/reject_infer.py` 支持阈值拒识判定
+
+### 4) 端到端评测
+
+```bash
+# 生成端到端输出
+python test.py
+
+# 统计人工标注准确率
+python e2e_score.py
+```
+
+`e2e_score.py` 会读取 `test/result/multi_test_output_labeled.txt`，按首列标注统计端到端准确率。
+
+---
+
 ## ⚡ 快速运行
 
 ### 方式一：脚本一键启动（推荐）
@@ -324,43 +371,6 @@ python dialog.py
 # 多轮批量测试（读取 test/data/multi_test.txt）
 python test.py
 ```
-
----
-
-## 📊 训练与评测
-
-### 1) 训练分类模型
-
-```bash
-cd train
-# 训练意图模型
-python run.py --model bert --data intent
-
-# 训练拒识模型
-python run.py --model bert_tiny --data reject
-```
-
-训练完成后会输出到：
-
-- `saved/intent/bert.ckpt`
-- `saved/reject/bert_tiny.ckpt`
-
-### 2) 服务化推理
-
-- `train/intent_infer.py` 支持 TopK 意图召回
-- `train/reject_infer.py` 支持阈值拒识判定
-
-### 3) 端到端评测
-
-```bash
-# 生成端到端输出
-python test.py
-
-# 统计人工标注准确率
-python e2e_score.py
-```
-
-`e2e_score.py` 会读取 `test/result/multi_test_output_labeled.txt`，按首列标注统计端到端准确率。
 
 ---
 
