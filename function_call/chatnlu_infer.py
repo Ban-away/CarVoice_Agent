@@ -159,7 +159,7 @@ async def inference(request: Request):
 
     response = {
         "query": query,
-        "tarce_id": trace_id,
+        "trace_id": trace_id,
         "intent": intent,
         "intent_id": intent_id,
         "function": func_name,

@@ -118,7 +118,7 @@ def inference(req):
 
     nlu_template = {
         "query": query,
-        "tarce_id": trace_id,
+        "trace_id": trace_id,
         "intent": "",
         "intent_id": "",
         "function": "",

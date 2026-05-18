@@ -65,3 +65,5 @@ config/config.ini
 Thumbs.db
 *.log
 logs/
+log/
+train\result/

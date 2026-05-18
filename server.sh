@@ -1,21 +1,17 @@
-# --------------------------------------------
-# 项目名称: LLM任务型对话Agent
-# 版权所有  ©2025丁师兄大模型
-# 生成时间: 2025-05
-# --------------------------------------------
-
-
-# 启动redis server
-#rm -rf redis-6.0.8 
-#wget http://download.redis.io/releases/redis-6.0.8.tar.gz
-#tar -xzvf redis-6.0.8.tar.gz
-#rm -rf redis-6.0.8.tar.gz
-#cd redis-6.0.8
-#make -j 10
-#cd ..
-#nohup ./redis-6.0.8/src/redis-server > log/redis.log 2>&1 &
-#echo "启动redis数据库.."
-#sleep 5s
+# 启动redis server（首次运行会自动下载编译，之后直接启动）
+if [ ! -d "redis-6.0.8" ]; then
+    echo "首次运行，开始下载并编译Redis..."
+    wget http://download.redis.io/releases/redis-6.0.8.tar.gz
+    tar -xzvf redis-6.0.8.tar.gz
+    rm -rf redis-6.0.8.tar.gz
+    cd redis-6.0.8
+    make -j 10
+    cd ..
+    echo "Redis编译完成"
+fi
+nohup ./redis-6.0.8/src/redis-server > log/redis.log 2>&1 &
+echo "启动redis数据库.."
+sleep 5s
 
 # 拒识服务
 cd train
