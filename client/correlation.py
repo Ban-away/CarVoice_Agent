@@ -1,10 +1,3 @@
-# -*- coding: utf-8 -*-
-# --------------------------------------------
-# 项目名称: LLM任务型对话Agent
-# 版权所有  ©2025丁师兄大模型
-# 生成时间: 2025-05
-# --------------------------------------------
-
 import requests
 import json
 import time
@@ -80,4 +73,3 @@ if __name__ == "__main__":
         query = input("输入：")
         res = request_correlation(query, sender_id)
         print(res)
-

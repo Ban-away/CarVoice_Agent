@@ -1,10 +1,3 @@
-# -*- coding:utf-8 -*-
-# --------------------------------------------
-# 项目名称: LLM任务型对话Agent
-# 版权所有  ©2025丁师兄大模型
-# 生成时间: 2025-05
-# --------------------------------------------
-
 """PyTorch BERT model."""
 
 from __future__ import absolute_import, division, print_function, unicode_literals
@@ -1212,4 +1205,3 @@ class BertForQuestionAnswering(BertPreTrainedModel):
             return total_loss
         else:
             return start_logits, end_logits
-

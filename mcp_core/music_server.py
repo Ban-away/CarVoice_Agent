@@ -1,10 +1,3 @@
-# -*- coding: utf-8 -*-
-# --------------------------------------------
-# 项目名称: LLM任务型对话Agent
-# 版权所有  ©2025丁师兄大模型
-# 生成时间: 2025-05
-# --------------------------------------------
-
 import asyncio
 from qqmusic_api import search
 from mcp.server.fastmcp import FastMCP
@@ -54,4 +47,3 @@ if __name__ == "__main__":
     #for item in res:
     #    print(item)
     mcp.run(transport='stdio')
-

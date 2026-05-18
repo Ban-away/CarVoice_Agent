@@ -1,10 +1,3 @@
-# -*- coding: utf-8 -*-
-# --------------------------------------------
-# 项目名称: LLM任务型对话Agent
-# 版权所有  ©2025丁师兄大模型
-# 生成时间: 2025-05
-# --------------------------------------------
-
 # File: logger.py
 
 """
@@ -105,4 +98,3 @@ _logger = _SesssionLoggerAdapter(_logger, {'session': session})
 for func in _LOGGING_METHOD:
     locals()[func] = getattr(_logger, func)
     __all__.append(func)
-
