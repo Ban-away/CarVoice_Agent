@@ -108,6 +108,6 @@ def process_chat(response, query, sender_id):
 if __name__ == '__main__':
     while 1:
         query = input("-->")
-        res = request_doubao_bot(query, '1', '2')
-        for frame in process_chat_bot(res, query, '1', time.time()):
+        res = request_chat(query, '1')
+        for frame in process_chat(res, query, '1'):
             print(frame)

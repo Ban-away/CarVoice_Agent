@@ -14,7 +14,7 @@ async def process(func_name, query, slots):
         return
 
     # 调用MCP接口
-        slots["date"] = datetime.now().strftime("%Y-%m-%d")
+    slots["date"] = datetime.now().strftime("%Y-%m-%d")
     
     formated_slots = {}
     keyword = ""
