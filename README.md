@@ -321,6 +321,33 @@ python e2e_score.py
 
 `e2e_score.py` 会读取 `test/result/multi_test_output_labeled.txt`，按首列标注统计端到端准确率。
 
+### 5) 性能测试（Locust）
+
+使用 Locust 进行服务性能压测：
+
+```bash
+# 安装 Locust
+pip install locust
+
+# NLU 服务压测（端口 8009）
+cd test
+locust -f nlu_benchmark.py --host http://127.0.0.1:8009 --headless -u 10 -r 5 -t 60s
+
+# 意图服务压测（端口 8008）
+locust -f intent_benchmark.py --host http://127.0.0.1:8008 --headless -u 10 -r 5 -t 60s
+
+# 拒识服务压测（端口 8007）
+locust -f reject_benchmark.py --host http://127.0.0.1:8007 --headless -u 10 -r 5 -t 60s
+```
+
+**参数说明**：
+| 参数 | 含义 |
+|:---|:---|
+| `-u 10` | 并发用户数 |
+| `-r 5` | 每秒新增用户数 |
+| `-t 60s` | 测试时长 |
+| `--headless` | 无界面模式 |
+
 ---
 
 ## ⚡ 快速运行
