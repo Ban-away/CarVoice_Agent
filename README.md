@@ -93,13 +93,15 @@ CarVoice_Agent/
 ├─ dialog.py                     # Socket 调用样例
 ├─ test.py                       # 多轮批量测试驱动
 ├─ e2e_score.py                  # 端到端准确率统计
-│
+└─ prompts.py                    # 提示词模板定义
+
 ├─ client/                       # 语义客户端（外部接口调用）
 │  ├─ arbitration.py             # 领域仲裁（A/B/C/D -> task/chat）
 │  ├─ rewrite.py                 # Query 改写
 │  ├─ correlation.py             # 当前 query 与上轮相关性
 │  ├─ reject.py                  # 拒识服务调用
 │  ├─ nlu.py                     # NLU 服务调用
+│  ├─ nlg.py                     # 自然语言生成
 │  └─ stream_chat.py             # 闲聊流式处理
 │
 ├─ function_call/                # Function Calling NLU
@@ -117,13 +119,26 @@ CarVoice_Agent/
 │  ├─ train_eval.py              # 训练/验证/测试
 │  ├─ intent_infer.py            # 意图服务（8008）
 │  ├─ reject_infer.py            # 拒识服务（8007）
+│  ├─ data_helper.py             # 数据处理工具
 │  ├─ data/
 │  │  ├─ intent/                 # 意图数据（train/dev/test/class）
 │  │  └─ reject/                 # 拒识数据（train/dev/test/class）
 │  ├─ models/
 │  │  ├─ bert.py
 │  │  └─ bert_tiny.py
+│  ├─ pretrained/                # 预训练模型目录
+│  │  ├─ chinese_roberta_wwm_ext/
+│  │  └─ roberta_tiny_clue/
+│  ├─ saved/                     # 微调后模型保存目录
+│  │  ├─ intent/
+│  │  └─ reject/
+│  ├─ result/                    # 训练日志
 │  └─ core/                      # BERT 相关基础实现
+│     ├─ __init__.py
+│     ├─ file_utils.py            # 文件操作工具
+│     ├─ modeling.py              # BERT 模型实现
+│     ├─ optimization.py          # 优化器配置
+│     └─ tokenization.py          # 分词工具
 │
 ├─ config/
 │  ├─ config.ini                 # 环境变量模板（shell export 风格）
@@ -133,10 +148,21 @@ CarVoice_Agent/
 │
 ├─ test/
 │  ├─ data/                      # 单轮/多轮测试语料
-│  └─ result/                    # 预测结果与标注结果
+│  ├─ result/                    # 预测结果与标注结果
+│  ├─ intent_client.py           # 意图服务测试客户端
+│  ├─ intent_benchmark.py        # 意图模型评测脚本
+│  ├─ reject_client.py           # 拒识服务测试客户端
+│  ├─ reject_benchmark.py        # 拒识模型评测脚本
+│  ├─ nlu_client.py              # NLU服务测试客户端
+│  └─ nlu_benchmark.py           # NLU模型评测脚本
 │
 ├─ mcp_core/                     # MCP 扩展工具（高德、音乐）
+│  ├─ amp_server.py              # 高德地图服务
+│  ├─ music_server.py            # 音乐检索服务
+│  └─ mcp_client.py              # MCP 客户端调用
 ├─ utils/                        # 日志、Redis 工具
+│  ├─ logger.py                  # 日志工具
+│  └─ redis_tool.py              # Redis 工具
 └─ log/                          # 运行日志目录
 ```
 
