@@ -395,37 +395,30 @@ locust -f reject_benchmark.py --host http://127.0.0.1:8007 --headless -u 10 -r 5
 
 ## ⚡ 快速运行
 
-### 0) 先下载基础模型
-
-```bash
-# 在项目根目录执行
-export HF_ENDPOINT=https://hf-mirror.com
-python download_models.py
-
-# 如需指定项目根目录或 HuggingFace Token
-export HF_ENDPOINT=https://hf-mirror.com
-python download_models.py --base-dir . --hf-token <token>
-```
-
-> 这一步请按顺序执行：先设置 `HF_ENDPOINT`，再运行下载脚本。
->
-> 该脚本会把两个基础模型下载到 `train/pretrained/`：`chinese_roberta_wwm_ext` 和 `roberta_tiny_clue`。
->
-> 这一步只准备初始化权重；`train/saved/intent/bert.ckpt` 和 `train/saved/reject/bert_tiny.ckpt` 仍需要本地训练后生成，评测和线上推理也依赖它们。
-
 ### 1) 安装依赖
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 2) 加载环境变量（Linux/macOS）
+### 2) 下载预训练模型
+
+```bash
+export HF_ENDPOINT=https://hf-mirror.com
+python download_models.py
+
+python download_models.py --base-dir . --hf-token <token>
+```
+
+> 脚本会把两个基础模型下载到 `train/pretrained/`：`chinese_roberta_wwm_ext` 和 `roberta_tiny_clue`。`train/saved/intent/bert.ckpt` 和 `train/saved/reject/bert_tiny.ckpt` 需要本地训练后生成。
+
+### 3) 加载环境变量（Linux/macOS）
 
 ```bash
 source config/config.ini
 ```
 
-### 3) 启动服务
+### 4) 启动服务
 
 ```bash
 bash server.sh
@@ -433,24 +426,27 @@ bash server.sh
 
 ### 方式一：脚本一键启动（推荐）
 
-完成上面的 0-3 步后，直接执行 `bash server.sh` 即可，它会依次启动拒识、意图、NLU 和入口服务。
+完成上面的 1-4 步后，直接执行 `bash server.sh` 即可，它会依次启动 Redis、拒识、意图、NLU 和入口服务。
 
 ### 方式二：手动逐服务启动
 
 ```bash
-# 终端 A：拒识
+# 终端 A：启动 Redis（必须先启动）
+redis-server
+
+# 终端 B：拒识
 cd train
 python reject_infer.py
 
-# 终端 B：意图
+# 终端 C：意图
 cd train
 python intent_infer.py
 
-# 终端 C：NLU
+# 终端 D：NLU
 cd function_call
 python chatnlu_infer.py
 
-# 终端 D：入口
+# 终端 E：入口
 cd .
 python start.py
 ```
