@@ -321,7 +321,7 @@ Redis 用于会话历史和状态缓存：
 ### 1) 安装依赖
 
 ```bash
-pip install -r requirements.txt
+pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple --timeout=300
 ```
 
 ### 2) 下载预训练模型
