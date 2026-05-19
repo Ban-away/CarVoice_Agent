@@ -222,13 +222,13 @@ start.py (SocketIO 入口)
 
 | 目录 | 作用 | 典型内容 |
 |:---:|:---|:---|
-| `pretrained/` | 存放基础预训练模型（作为初始化权重） | `chinese_roberta_wwm_ext/`、词表、config、bin |
-| `saved/` | 存放微调后的任务模型（线上推理加载） | `saved/intent/bert.ckpt`、`saved/reject/bert_tiny.ckpt` |
+| `train/pretrained/` | 存放基础预训练模型（作为初始化权重） | `chinese_roberta_wwm_ext/`、`roberta_tiny_clue/` |
+| `train/saved/` | 存放微调后的任务模型（线上推理加载） | `intent/bert.ckpt`、`reject/bert_tiny.ckpt` |
 
 模型路径在 `train/models/bert.py` 与 `train/models/bert_tiny.py` 中定义：
 
-- `bert_path = ./pretrained/chinese_roberta_wwm_ext`
-- `save_path = ./saved/{dataset}/{model}.ckpt`
+- `bert_path = ./pretrained/chinese_roberta_wwm_ext`（在 `train/` 目录下运行时生效）
+- `save_path = ./saved/{dataset}/{model}.ckpt`（在 `train/` 目录下运行时生效）
 
 ---
 
@@ -272,9 +272,10 @@ Redis 用于会话历史和状态缓存：
 建议预先创建目录：
 
 - `log/`
-- `saved/intent/`
-- `saved/reject/`
-- `pretrained/chinese_roberta_wwm_ext/`
+- `train/saved/intent/`
+- `train/saved/reject/`
+- `train/pretrained/chinese_roberta_wwm_ext/`
+- `train/pretrained/roberta_tiny_clue/`
 
 ---
 
@@ -301,8 +302,8 @@ python run.py --model bert_tiny --data reject
 
 训练完成后会输出到：
 
-- `saved/intent/bert.ckpt`
-- `saved/reject/bert_tiny.ckpt`
+- `train/saved/intent/bert.ckpt`
+- `train/saved/reject/bert_tiny.ckpt`
 
 ### 3) 服务化推理
 
@@ -352,18 +353,40 @@ locust -f reject_benchmark.py --host http://127.0.0.1:8007 --headless -u 10 -r 5
 
 ## ⚡ 快速运行
 
-### 方式一：脚本一键启动（推荐）
+### 0) 先下载基础模型
 
 ```bash
-# 1) 安装依赖
+# 在项目根目录执行
+python download_models.py
+
+# 如需指定项目根目录或 HuggingFace Token
+python download_models.py --base-dir . --hf-token <token>
+```
+
+> 该脚本会把两个基础模型下载到 `train/pretrained/`：
+> `chinese_roberta_wwm_ext` 和 `roberta_tiny_clue`。
+
+### 1) 安装依赖
+
+```bash
 pip install -r requirements.txt
+```
 
-# 2) 加载环境变量（Linux/macOS）
+### 2) 加载环境变量（Linux/macOS）
+
+```bash
 source config/config.ini
+```
 
-# 3) 启动服务
+### 3) 启动服务
+
+```bash
 bash server.sh
 ```
+
+### 方式一：脚本一键启动（推荐）
+
+完成上面的 0-3 步后，直接执行 `bash server.sh` 即可，它会依次启动拒识、意图、NLU 和入口服务。
 
 ### 方式二：手动逐服务启动
 
@@ -412,7 +435,7 @@ python test.py
 | 配置文件命名 | `config.ini` 内容是 shell 脚本而非标准 INI | 可重命名为 `.env` 或 `env.sh` |
 | 平台差异 | 一键脚本偏 Linux | Windows 推荐 Git Bash/WSL |
 | 外部依赖 | 豆包 API、Redis、高德 API 需可用 | 启动前先健康检查 |
-| 模型目录 | `pretrained/` 与 `saved/` 需提前准备 | 首次训练前先建目录并放入基座模型 |
+| 模型目录 | `train/pretrained/` 与 `train/saved/` 需提前准备 | 首次训练前先建目录并放入基座模型 |
 | E2E 评估 | 最终准确率依赖人工标注 | 建议建立统一标注规范 |
 
 ---

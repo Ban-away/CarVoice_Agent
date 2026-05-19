@@ -53,7 +53,6 @@ __pycache__/
 # IDE & 编辑器
 # ==============================================
 .vscode/
-config/config.ini
 .idea/
 *.swp
 *~
