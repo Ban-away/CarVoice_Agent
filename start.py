@@ -118,7 +118,7 @@ def inference(req):
 
     nlu_template = {
         "query": query,
-        "trace_id": trace_id,
+        "tarce_id": trace_id,
         "intent": "",
         "intent_id": "",
         "function": "",
@@ -174,28 +174,18 @@ def inference(req):
                     broadcast=False
                 )
             else:
-                # 任务流未命中时，兜底闲聊
-                is_hit_chat, full_answer = handle_chat(handler_bot, nlu_template, ori_query, sender_id, begin)
-                if is_hit_chat:
-                    redis_client.set(REDIS_KEY.format(sender_id), f"CHAT#{query}#1#{full_answer}", ex=TTL)
-                else:
-                    send_msg(nlu_result, "REJECT", prompts.DEFAULT_NLG, 1, time.time() - begin, status=-1)
-                    logger.info(f"Query {query} has been rejected.")
+                send_msg(nlu_result, "REJECT", prompts.DEFAULT_NLG, 1, time.time() - begin, status=-1)
+                logger.info(f"Query {query} has been rejected.")
         else:
             # 拒识
             reject_result = handler_reject.result()
             if reject_result == 0:
                 correlation_result = handler_correlation.result()
                 if correlation_result == "是":
-                    reject_result = 1
+                    reject_result = 1 
             if reject_result == 0:
-                # 非任务流被拒时，也尝试闲聊兜底
-                is_hit_chat, full_answer = handle_chat(handler_bot, nlu_template, ori_query, sender_id, begin)
-                if is_hit_chat:
-                    redis_client.set(REDIS_KEY.format(sender_id), f"CHAT#{query}#0#{full_answer}", ex=TTL)
-                else:
-                    send_msg(nlu_template, "REJECT", "", 1, time.time() - begin, status=-1)
-                    logger.info(f"Query {query} has been rejected.")
+                send_msg(nlu_template, "REJECT", "", 1, time.time() - begin, status=-1)
+                logger.info(f"Query {query} has been rejected.")
             else:
                 # 百科闲聊兜底
                 is_hit_chat, full_answer = handle_chat(handler_bot, nlu_template, ori_query, sender_id, begin)

@@ -10,6 +10,7 @@ from utils import logger
 TIMEOUT = 10.0
 DOUBAO_API_KEY = os.environ.get("API_KEY", "")
 DOUBAO_URL = os.environ.get("BASE_URL", "https://ark.cn-beijing.volces.com/api/v3/chat/completions")
+NLG_MODEL = os.environ.get("NLG_MODEL", "ep-20241203180921-h2kgz")
 NLG_PROMPT = prompts.NLG_PROMPT
 
 
@@ -24,7 +25,7 @@ def request_nlg(query, tool_response):
         ]
 
         body = dict(
-            model="ep-20241203180921-h2kgz", #doubao-pro 32k, deepseek-v3/v3.1
+            model=NLG_MODEL, #doubao-pro 32k, deepseek-v3/v3.1
             messages=messages,
         )
         response = requests.post(

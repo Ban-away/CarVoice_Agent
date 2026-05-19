@@ -11,6 +11,7 @@ TTL = 40
 MAX_HISTORY = 6
 DOUBAO_API_KEY = os.environ.get("API_KEY", "")
 DOUBAO_URL = os.environ.get("BASE_URL", "https://ark.cn-beijing.volces.com/api/v3/chat/completions")
+REWRITE_MODEL = os.environ.get("REWRITE_MODEL", "ep-20250206092527-ms2qn")
 REDIS_KEY = "voice:rewrite_history:{}"
 _redis_client = RedisClient() 
 
@@ -61,7 +62,7 @@ def request_rewrite(query, last_answer, sender_id):
         messages = messages_header + messages_now
 
         data = {
-            "model": "ep-20250206092527-ms2qn", #doubao-pro 32k, deepseek-v3/v3.1
+            "model": REWRITE_MODEL, #doubao-pro 32k, deepseek-v3/v3.1
             "messages": messages,
             "temperature": 0.001,
             "top_p": 0,

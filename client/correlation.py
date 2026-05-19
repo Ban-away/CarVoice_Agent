@@ -14,6 +14,7 @@ _redis_client = RedisClient()
 
 DOUBAO_API_KEY = os.environ.get("API_KEY", "")
 DOUBAO_URL = os.environ.get("BASE_URL", "https://ark.cn-beijing.volces.com/api/v3/chat/completions")
+CORRELATION_MODEL = os.environ.get("CORRELATION_MODEL", "ep-20241203180921-h2kgz")
 CORRELATION_SYSTEM = prompts.CORRELATION_SYSTEM
 CORRELATION_PROMPT = prompts.CORRELATION_PROMPT
 
@@ -42,7 +43,7 @@ def request_correlation(query, sender_id):
         ]
 
         body = dict(
-            model="ep-20241203180921-h2kgz", # doubao-pro 32k, deepseek-v3/v3.1
+            model=CORRELATION_MODEL, # doubao-pro 32k, deepseek-v3/v3.1
             messages=messages,
             temperature=0,
         )

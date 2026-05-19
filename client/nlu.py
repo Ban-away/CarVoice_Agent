@@ -6,7 +6,7 @@ from utils import logger
 from typing import List
 
 
-NLU_URL = os.environ.get("NLU_URL", "http://127.0.0.1:8009/chatnlu-server/v1")
+NLU_URL = os.environ["NLU_URL"]
 
 
 def request_nlu(query, trace_id, enable_dm=True):
