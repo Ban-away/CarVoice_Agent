@@ -87,11 +87,10 @@ def request_arbitration(query, sender_id):
 
     except Exception as e:
         logger.info(f"Arbitration API error: {e}")
-        # 如果没有配置 API_KEY，默认返回闲聊模式，避免所有查询都被拒识
+        # 仲裁异常时默认走闲聊兜底，避免所有查询被任务流直接拒识
         if not API_KEY:
             logger.info("API_KEY not configured, defaulting to chat mode")
-            return "chat"
-        return "task"
+        return "chat"
 
 
 if __name__ == '__main__':
