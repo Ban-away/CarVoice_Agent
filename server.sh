@@ -19,6 +19,55 @@ ENTRY_PORT=${ENTRY_PORT:-8080}
 # 失败服务列表
 FAILED_SERVICES=()
 
+# 使用Python检查并释放端口（仅释放当前项目相关进程）
+release_port_with_python() {
+    local port=$1
+    local python_code=$(cat << 'EOF'
+import socket
+import os
+import signal
+
+def find_and_kill_project_process(port, base_dir):
+    try:
+        import subprocess
+        result = subprocess.run(['nc', '-z', 'localhost', str(port)], capture_output=True)
+        if result.returncode == 0:
+            print(f"Port {port} is in use")
+            # 遍历/proc查找占用端口的进程
+            for pid in os.listdir('/proc'):
+                if not pid.isdigit():
+                    continue
+                try:
+                    with open(f'/proc/{pid}/cmdline', 'r') as f:
+                        cmd = f.read()
+                    # 只处理Python进程
+                    if 'python' not in cmd.lower():
+                        continue
+                    # 检查是否是当前项目的进程（命令行包含项目目录）
+                    if base_dir in cmd:
+                        try:
+                            print(f"Killing project process {pid} using port {port}")
+                            os.kill(int(pid), signal.SIGTERM)
+                            return True
+                        except Exception as e:
+                            print(f"Failed to kill {pid}: {e}")
+                except:
+                    pass
+            print(f"Port {port} is used by other program, not killed")
+            return False
+        else:
+            return False
+    except Exception as e:
+        print(f"Error checking port {port}: {e}")
+        return False
+
+find_and_kill_project_process(int('PORT_PLACEHOLDER'), 'BASE_DIR_PLACEHOLDER')
+EOF
+)
+    python3 -c "${python_code//PORT_PLACEHOLDER/$port}" 2>/dev/null | sed "s|BASE_DIR_PLACEHOLDER|$BASE_DIR|g"
+    sleep 2
+}
+
 # 检查端口是否被占用（仅使用nc命令，兼容更多系统）
 check_port() {
     local port=$1
@@ -91,42 +140,35 @@ if [ ${#MODEL_MISSING[@]} -gt 0 ]; then
     exit 1
 fi
 
-# 检查端口占用情况
+# 检查端口占用情况并尝试释放
 echo "检查端口占用情况..."
+PORTS=($REDIS_PORT $REJECT_PORT $INTENT_PORT $NLU_PORT $ENTRY_PORT)
 PORT_CONFLICTS=()
 
-if check_port $REDIS_PORT; then
-    PORT_CONFLICTS+=("Redis (端口 $REDIS_PORT)")
-fi
-if check_port $REJECT_PORT; then
-    PORT_CONFLICTS+=("拒识服务 (端口 $REJECT_PORT)")
-fi
-if check_port $INTENT_PORT; then
-    PORT_CONFLICTS+=("意图识别服务 (端口 $INTENT_PORT)")
-fi
-if check_port $NLU_PORT; then
-    PORT_CONFLICTS+=("NLU服务 (端口 $NLU_PORT)")
-fi
-if check_port $ENTRY_PORT; then
-    PORT_CONFLICTS+=("入口服务 (端口 $ENTRY_PORT)")
-fi
+for port in "${PORTS[@]}"; do
+    if check_port $port; then
+        echo "⚠️ 端口 $port 已被占用"
+        release_port_with_python $port
+        # 再次检查
+        if check_port $port; then
+            PORT_CONFLICTS+=("端口 $port")
+        else
+            echo "✅ 端口 $port 已释放"
+        fi
+    else
+        echo "✅ 端口 $port 可用"
+    fi
+done
 
-# 如果有端口冲突，提示用户
+# 如果还有端口冲突，提示用户
 if [ ${#PORT_CONFLICTS[@]} -gt 0 ]; then
     echo ""
-    echo "⚠️ 以下端口已被占用："
+    echo "❌ 以下端口仍被占用（可能被其他程序使用）："
     for conflict in "${PORT_CONFLICTS[@]}"; do
         echo "  - $conflict"
     done
     echo ""
-    echo "请释放占用的端口，或通过环境变量指定其他端口："
-    echo "  export REDIS_PORT=6380"
-    echo "  export REJECT_PORT=8017"
-    echo "  export INTENT_PORT=8018"
-    echo "  export NLU_PORT=8019"
-    echo "  export ENTRY_PORT=8090"
-    echo ""
-    echo "示例："
+    echo "请手动释放端口或使用其他端口："
     echo "  REDIS_PORT=6380 NLU_PORT=8019 ENTRY_PORT=8090 bash server.sh"
     exit 1
 fi
