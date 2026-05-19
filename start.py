@@ -88,20 +88,12 @@ def handle_chat(handler_bot, nlu_result, query, sender_id, begin):
 
     # 中间帧
     full_answer = ""
-    try:
-        for value in process_chat(handler_bot.result(), query, sender_id):
-            nlu_result_chat = copy.deepcopy(nlu_result)
-            send_msg(nlu_result_chat, "CHAT", value, seq, time.time() - begin, status=1)
-            seq += 1
-            full_answer += value
-            logger.info(f"Chat Frame:{seq},content:{value}")
-    except Exception as e:
-        logger.error(f"Chat processing error: {e}")
-        # 如果闲聊服务失败，发送友好的错误消息
-        nlu_result_error = copy.deepcopy(nlu_result)
-        send_msg(nlu_result_error, "CHAT", "抱歉，我现在有点忙，稍后再聊吧", seq, time.time() - begin, status=2)
-        logger.info(f"Chat cost time: {time.time() - begin}")
-        return True, full_answer
+    for value in process_chat(handler_bot.result(), query, sender_id):
+        nlu_result_chat = copy.deepcopy(nlu_result)
+        send_msg(nlu_result_chat, "CHAT", value, seq, time.time() - begin, status=1)
+        seq += 1
+        full_answer += value
+        logger.info(f"Chat Frame:{seq},content:{value}")
 
     # 结束帧
     if seq > 1:
@@ -185,7 +177,7 @@ def inference(req):
                 send_msg(nlu_result, "REJECT", prompts.DEFAULT_NLG, 1, time.time() - begin, status=-1)
                 logger.info(f"Query {query} has been rejected.")
         else:
-            # 拒识检查
+            # 拒识
             reject_result = handler_reject.result()
             if reject_result == 0:
                 correlation_result = handler_correlation.result()
@@ -205,8 +197,7 @@ def inference(req):
             'TraceID:{}, Internal Server Error!'.format(trace_id))
         logger.error('{}'.format(e))
         traceback.print_exc()
-        # 如果是闲聊模式，返回友好的错误消息，而不是拒识
-        send_msg(nlu_template, "CHAT", "抱歉，当前服务暂时不可用，请稍后再试", 1, time.time() - begin, status=-1)
+        send_msg(nlu_template, "REJECT", "", 1, time.time() - begin, status=-1)
 
 if __name__ == "__main__":
     socketio.run(
