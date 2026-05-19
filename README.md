@@ -19,7 +19,7 @@
 - [🧠 数据与模型目录说明](#数据与模型目录说明)
 - [⚙️ 配置要点](#配置要点)
 - [⚡ 快速运行](#快速运行)
-- [📊 训练与评测](#训练与评测)
+- [📊 评测与性能测试](#评测与性能测试)
 - [⚠️ 已知限制](#已知限制)
 
 ---
@@ -290,12 +290,8 @@ pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple --ti
 ### 2) 下载预训练模型
 
 ```bash
-# 普通用户（公开模型）直接运行
 export HF_ENDPOINT=https://hf-mirror.com
 python download_models.py
-
-# 如需指定目录或使用私有模型
-python download_models.py --base-dir /path/your/project --hf-token your_actual_token_here
 ```
 
 > 脚本会把两个基础模型下载到 `train/pretrained/`：`chinese_roberta_wwm_ext` 和 `roberta_tiny_clue`。
@@ -306,19 +302,38 @@ python download_models.py --base-dir /path/your/project --hf-token your_actual_t
 source config/config.ini
 ```
 
-### 4) 启动服务
+### 4) 训练模型（首次运行必须执行）
+
+```bash
+cd train
+# 训练意图模型（bert-large，平衡精度与效率）
+python run.py --model bert --data intent
+
+# 训练拒识模型（bert-tiny，极致效率，小模型大数据）
+python run.py --model bert_tiny --data reject
+cd ..
+```
+
+训练完成后会输出到：
+- `train/saved/intent/bert.ckpt`
+- `train/saved/reject/bert_tiny.ckpt`
+
+### 5) 启动服务
 
 ```bash
 bash server.sh
 ```
 
-### 方式一：脚本一键启动（推荐）
+#### 方式一：脚本一键启动（推荐）
 
-完成上面的 1-4 步后，直接执行 `bash server.sh` 即可，它会依次启动 Redis、拒识、意图、NLU 和入口服务。
+完成上面的 1-5 步后，直接执行 `bash server.sh` 即可，它会依次启动：
+1. Redis（首次运行会自动下载并编译）
+2. 拒识服务
+3. 意图识别服务
+4. NLU 服务
+5. 入口服务
 
-> **注意**：首次运行时 `server.sh` 会自动下载并编译 Redis；后续运行直接启动。
-
-### 方式二：手动逐服务启动
+#### 方式二：手动逐服务启动
 
 ```bash
 # 终端 A：启动 Redis（必须先启动）
@@ -341,15 +356,7 @@ cd .
 python start.py
 ```
 
-### Windows 启动提示
-
-`config/config.ini` 使用的是 `export` 语法，不可直接在 `cmd` 中执行。可选方案：
-
-1. 使用 Git Bash / WSL 执行 `source config/config.ini`
-2. 在系统环境变量中手动配置上述键值
-3. 改写为 `.bat` 版本后通过 `cmd` 启动
-
-### 运行联调样例
+### 6) 运行联调样例
 
 ```bash
 # 单次 Socket 调用
@@ -359,46 +366,19 @@ python dialog.py
 python test.py
 ```
 
+### Windows 启动提示
+
+`config/config.ini` 使用的是 `export` 语法，不可直接在 `cmd` 中执行。可选方案：
+
+1. 使用 Git Bash / WSL 执行 `source config/config.ini`
+2. 在系统环境变量中手动配置上述键值
+3. 改写为 `.bat` 版本后通过 `cmd` 启动
+
 ---
 
-## 📊 训练与评测
+## 📊 评测与性能测试
 
-### 1) 训练前准备
-
-```bash
-# 安装依赖（如未安装）
-pip install -r requirements.txt
-
-# 下载预训练模型
-export HF_ENDPOINT=https://hf-mirror.com
-python download_models.py
-
-# 加载环境变量
-source config/config.ini
-```
-
-### 2) 训练分类模型
-
-```bash
-cd train
-# 训练意图模型（bert-large，平衡精度与效率）
-python run.py --model bert --data intent
-
-# 训练拒识模型（bert-tiny，极致效率，小模型大数据）
-python run.py --model bert_tiny --data reject
-```
-
-训练完成后会输出到：
-
-- `train/saved/intent/bert.ckpt`
-- `train/saved/reject/bert_tiny.ckpt`
-
-### 3) 服务化推理
-
-- `train/intent_infer.py` 支持 TopK 意图召回
-- `train/reject_infer.py` 支持阈值拒识判定
-
-### 4) 端到端评测
+### 1) 端到端评测
 
 ```bash
 # 生成端到端输出
@@ -412,7 +392,7 @@ python e2e_score.py
 
 > 评测前需确保 `train/saved/intent/bert.ckpt` 和 `train/saved/reject/bert_tiny.ckpt` 已存在。
 
-### 5) 性能测试（Locust）
+### 2) 性能测试（Locust）
 
 使用 Locust 进行服务性能压测：
 
