@@ -22,7 +22,9 @@ FAILED_SERVICES=()
 # 检查端口是否被占用
 check_port() {
     local port=$1
-    if nc -z localhost $port 2>/dev/null; then
+    if ss -tlnp | grep -q ":$port "; then
+        return 0  # 端口被占用
+    elif nc -z localhost $port 2>/dev/null; then
         return 0  # 端口被占用
     else
         return 1  # 端口可用
@@ -61,6 +63,34 @@ if [ -f "$BASE_DIR/config/config.ini" ]; then
     echo "✅ 环境变量加载成功"
 else
     echo "⚠️ 未找到 config/config.ini，使用系统环境变量"
+fi
+
+# 检查模型文件是否存在
+echo "检查模型文件..."
+MODEL_MISSING=()
+
+REJECT_MODEL="$BASE_DIR/train/saved/reject/bert_tiny.ckpt"
+INTENT_MODEL="$BASE_DIR/train/saved/intent/bert.ckpt"
+
+if [ ! -f "$REJECT_MODEL" ]; then
+    MODEL_MISSING+=("拒识模型: $REJECT_MODEL")
+fi
+if [ ! -f "$INTENT_MODEL" ]; then
+    MODEL_MISSING+=("意图模型: $INTENT_MODEL")
+fi
+
+if [ ${#MODEL_MISSING[@]} -gt 0 ]; then
+    echo ""
+    echo "❌ 以下模型文件不存在："
+    for missing in "${MODEL_MISSING[@]}"; do
+        echo "  - $missing"
+    done
+    echo ""
+    echo "请先运行训练命令生成模型："
+    echo "  cd $BASE_DIR/train"
+    echo "  python run.py --model bert --data intent"
+    echo "  python run.py --model bert_tiny --data reject"
+    exit 1
 fi
 
 # 检查端口占用情况
