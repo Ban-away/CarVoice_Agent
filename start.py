@@ -88,12 +88,20 @@ def handle_chat(handler_bot, nlu_result, query, sender_id, begin):
 
     # 中间帧
     full_answer = ""
-    for value in process_chat(handler_bot.result(), query, sender_id):
-        nlu_result_chat = copy.deepcopy(nlu_result)
-        send_msg(nlu_result_chat, "CHAT", value, seq, time.time() - begin, status=1)
-        seq += 1
-        full_answer += value
-        logger.info(f"Chat Frame:{seq},content:{value}")
+    try:
+        for value in process_chat(handler_bot.result(), query, sender_id):
+            nlu_result_chat = copy.deepcopy(nlu_result)
+            send_msg(nlu_result_chat, "CHAT", value, seq, time.time() - begin, status=1)
+            seq += 1
+            full_answer += value
+            logger.info(f"Chat Frame:{seq},content:{value}")
+    except Exception as e:
+        logger.error(f"Chat processing error: {e}")
+        # 如果闲聊服务失败，发送友好的错误消息
+        nlu_result_error = copy.deepcopy(nlu_result)
+        send_msg(nlu_result_error, "CHAT", "抱歉，我现在有点忙，稍后再聊吧", seq, time.time() - begin, status=2)
+        logger.info(f"Chat cost time: {time.time() - begin}")
+        return True, full_answer
 
     # 结束帧
     if seq > 1:
@@ -177,27 +185,28 @@ def inference(req):
                 send_msg(nlu_result, "REJECT", prompts.DEFAULT_NLG, 1, time.time() - begin, status=-1)
                 logger.info(f"Query {query} has been rejected.")
         else:
-            # 拒识检查（暂时跳过，直接进入闲聊）
-            # reject_result = handler_reject.result()
-            # if reject_result == 0:
-            #     correlation_result = handler_correlation.result()
-            #     if correlation_result == "是":
-            #         reject_result = 1 
-            # if reject_result == 0:
-            #     send_msg(nlu_template, "REJECT", "", 1, time.time() - begin, status=-1)
-            #     logger.info(f"Query {query} has been rejected.")
-            # else:
-            # 直接进入百科闲聊兜底
-            is_hit_chat, full_answer = handle_chat(handler_bot, nlu_template, ori_query, sender_id, begin)
-            if is_hit_chat:
-                redis_client.set(REDIS_KEY.format(sender_id), f"CHAT#{query}#1#{full_answer}", ex=TTL)
+            # 拒识检查
+            reject_result = handler_reject.result()
+            if reject_result == 0:
+                correlation_result = handler_correlation.result()
+                if correlation_result == "是":
+                    reject_result = 1 
+            if reject_result == 0:
+                send_msg(nlu_template, "REJECT", "", 1, time.time() - begin, status=-1)
+                logger.info(f"Query {query} has been rejected.")
+            else:
+                # 百科闲聊兜底
+                is_hit_chat, full_answer = handle_chat(handler_bot, nlu_template, ori_query, sender_id, begin)
+                if is_hit_chat:
+                    redis_client.set(REDIS_KEY.format(sender_id), f"CHAT#{query}#{reject_result}#{full_answer}", ex=TTL)
 
     except Exception as e:
         logger.error(
             'TraceID:{}, Internal Server Error!'.format(trace_id))
         logger.error('{}'.format(e))
         traceback.print_exc()
-        send_msg(nlu_template, "REJECT", "", 1, time.time() - begin, status=-1)
+        # 如果是闲聊模式，返回友好的错误消息，而不是拒识
+        send_msg(nlu_template, "CHAT", "抱歉，当前服务暂时不可用，请稍后再试", 1, time.time() - begin, status=-1)
 
 if __name__ == "__main__":
     socketio.run(

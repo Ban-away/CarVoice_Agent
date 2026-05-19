@@ -21,6 +21,11 @@ SYSTEM_PROMPT = prompts.BOT_CHAT_SYSTEM_PROMPT
 
 
 def request_chat(query, sender_id, multiturn=True):
+    # 如果没有配置 API_KEY，直接返回错误
+    if not DOUBAO_API_KEY:
+        logger.info("DOUBAO_API_KEY not configured, returning mock response")
+        return "N"
+    
     if multiturn:
         history = _redis_client.get(REDIS_KEY.format(sender_id))
         if history:
@@ -63,9 +68,11 @@ def process_chat(response, query, sender_id):
     if response is None:
         response = "抱歉，此为敏感信息，请您换个问题"
         yield response
+        return
     if response == "N":
         response = "抱歉，网络有点问题，请您再试一下"
         yield response
+        return
     else:
         counter = 1
         uttrance = ""
