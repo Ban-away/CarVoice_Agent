@@ -19,8 +19,8 @@
 - [🧠 数据与模型目录说明](#数据与模型目录说明)
 - [📥 模型下载](#模型下载)
 - [⚙️ 配置要点](#配置要点)
-- [📊 训练与评测](#训练与评测)
 - [⚡ 快速运行](#快速运行)
+- [📊 训练与评测](#训练与评测)
 - [⚠️ 已知限制](#已知限制)
 
 ---
@@ -316,83 +316,6 @@ Redis 用于会话历史和状态缓存：
 
 ---
 
-## 📊 训练与评测
-
-### 1) 训练前准备（先下载基础模型）
-
-训练前分两步：
-
-1. 先设置 Hugging Face 镜像源，然后运行下载脚本，把基础预训练权重下载到 `train/pretrained/`。
-2. 再加载环境变量，执行下面的命令：
-
-```bash
-source config/config.ini
-```
-
-### 2) 训练分类模型
-
-```bash
-cd train
-# 训练意图模型（bert-large，平衡精度与效率）
-python run.py --model bert --data intent
-
-# 训练拒识模型（bert-tiny，极致效率，小模型大数据）
-python run.py --model bert_tiny --data reject
-```
-
-训练完成后会输出到：
-
-- `train/saved/intent/bert.ckpt`
-- `train/saved/reject/bert_tiny.ckpt`
-
-### 3) 服务化推理
-
-- `train/intent_infer.py` 支持 TopK 意图召回
-- `train/reject_infer.py` 支持阈值拒识判定
-
-### 4) 端到端评测
-
-```bash
-# 生成端到端输出
-python test.py
-
-# 统计人工标注准确率
-python e2e_score.py
-```
-
-`e2e_score.py` 会读取 `test/result/multi_test_output_labeled.txt`，按首列标注统计端到端准确率。
-
-> 评测前通常需要先完成训练，确保 `train/saved/intent/bert.ckpt` 和 `train/saved/reject/bert_tiny.ckpt` 已存在；否则对应服务无法正常加载模型。
-
-### 5) 性能测试（Locust）
-
-使用 Locust 进行服务性能压测：
-
-```bash
-# 安装 Locust
-pip install locust
-
-# NLU 服务压测（端口 8009）
-cd test
-locust -f nlu_benchmark.py --host http://127.0.0.1:8009 --headless -u 10 -r 5 -t 60s
-
-# 意图服务压测（端口 8008）
-locust -f intent_benchmark.py --host http://127.0.0.1:8008 --headless -u 10 -r 5 -t 60s
-
-# 拒识服务压测（端口 8007）
-locust -f reject_benchmark.py --host http://127.0.0.1:8007 --headless -u 10 -r 5 -t 60s
-```
-
-**参数说明**：
-| 参数 | 含义 |
-|:---|:---|
-| `-u 10` | 并发用户数 |
-| `-r 5` | 每秒新增用户数 |
-| `-t 60s` | 测试时长 |
-| `--headless` | 无界面模式 |
-
----
-
 ## ⚡ 快速运行
 
 ### 1) 安装依赖
@@ -410,7 +333,7 @@ python download_models.py
 python download_models.py --base-dir . --hf-token <token>
 ```
 
-> 脚本会把两个基础模型下载到 `train/pretrained/`：`chinese_roberta_wwm_ext` 和 `roberta_tiny_clue`。`train/saved/intent/bert.ckpt` 和 `train/saved/reject/bert_tiny.ckpt` 需要本地训练后生成。
+> 脚本会把两个基础模型下载到 `train/pretrained/`：`chinese_roberta_wwm_ext` 和 `roberta_tiny_clue`。
 
 ### 3) 加载环境变量（Linux/macOS）
 
@@ -427,6 +350,8 @@ bash server.sh
 ### 方式一：脚本一键启动（推荐）
 
 完成上面的 1-4 步后，直接执行 `bash server.sh` 即可，它会依次启动 Redis、拒识、意图、NLU 和入口服务。
+
+> **注意**：首次运行时 `server.sh` 会自动下载并编译 Redis；后续运行直接启动。
 
 ### 方式二：手动逐服务启动
 
@@ -468,6 +393,86 @@ python dialog.py
 # 多轮批量测试（读取 test/data/multi_test.txt）
 python test.py
 ```
+
+---
+
+## 📊 训练与评测
+
+### 1) 训练前准备
+
+```bash
+# 安装依赖（如未安装）
+pip install -r requirements.txt
+
+# 下载预训练模型
+export HF_ENDPOINT=https://hf-mirror.com
+python download_models.py
+
+# 加载环境变量
+source config/config.ini
+```
+
+### 2) 训练分类模型
+
+```bash
+cd train
+# 训练意图模型（bert-large，平衡精度与效率）
+python run.py --model bert --data intent
+
+# 训练拒识模型（bert-tiny，极致效率，小模型大数据）
+python run.py --model bert_tiny --data reject
+```
+
+训练完成后会输出到：
+
+- `train/saved/intent/bert.ckpt`
+- `train/saved/reject/bert_tiny.ckpt`
+
+### 3) 服务化推理
+
+- `train/intent_infer.py` 支持 TopK 意图召回
+- `train/reject_infer.py` 支持阈值拒识判定
+
+### 4) 端到端评测
+
+```bash
+# 生成端到端输出
+python test.py
+
+# 统计人工标注准确率
+python e2e_score.py
+```
+
+`e2e_score.py` 会读取 `test/result/multi_test_output_labeled.txt`，按首列标注统计端到端准确率。
+
+> 评测前需确保 `train/saved/intent/bert.ckpt` 和 `train/saved/reject/bert_tiny.ckpt` 已存在。
+
+### 5) 性能测试（Locust）
+
+使用 Locust 进行服务性能压测：
+
+```bash
+# 安装 Locust
+pip install locust
+
+# NLU 服务压测（端口 8009）
+cd test
+locust -f nlu_benchmark.py --host http://127.0.0.1:8009 --headless -u 10 -r 5 -t 60s
+
+# 意图服务压测（端口 8008）
+locust -f intent_benchmark.py --host http://127.0.0.1:8008 --headless -u 10 -r 5 -t 60s
+
+# 拒识服务压测（端口 8007）
+locust -f reject_benchmark.py --host http://127.0.0.1:8007 --headless -u 10 -r 5 -t 60s
+```
+
+**参数说明**：
+| 参数 | 含义 |
+|:---|:---|
+| `-u 10` | 并发用户数 |
+| `-r 5` | 每秒新增用户数 |
+| `-t 60s` | 测试时长 |
+| `--headless` | 无界面模式 |
 
 ---
 
