@@ -1,3 +1,6 @@
+# 创建日志目录（不存在时自动新建）
+mkdir -p log/
+
 # 启动redis server（首次运行会自动下载编译，之后直接启动）
 if [ ! -d "redis-6.0.8" ]; then
     echo "首次运行，开始下载并编译Redis..."
