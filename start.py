@@ -118,7 +118,7 @@ def inference(req):
 
     nlu_template = {
         "query": query,
-        "tarce_id": trace_id,
+        "trace_id": trace_id,
         "intent": "",
         "intent_id": "",
         "function": "",
@@ -177,20 +177,14 @@ def inference(req):
                 send_msg(nlu_result, "REJECT", prompts.DEFAULT_NLG, 1, time.time() - begin, status=-1)
                 logger.info(f"Query {query} has been rejected.")
         else:
-            # 拒识
-            reject_result = handler_reject.result()
-            if reject_result == 0:
-                correlation_result = handler_correlation.result()
-                if correlation_result == "是":
-                    reject_result = 1 
-            if reject_result == 0:
-                send_msg(nlu_template, "REJECT", "", 1, time.time() - begin, status=-1)
-                logger.info(f"Query {query} has been rejected.")
-            else:
-                # 百科闲聊兜底
+            # 闲聊模式：直接调用闲聊服务，跳过拒识检查
+            try:
                 is_hit_chat, full_answer = handle_chat(handler_bot, nlu_template, ori_query, sender_id, begin)
                 if is_hit_chat:
-                    redis_client.set(REDIS_KEY.format(sender_id), f"CHAT#{query}#{reject_result}#{full_answer}", ex=TTL)
+                    redis_client.set(REDIS_KEY.format(sender_id), f"CHAT#{query}#1#{full_answer}", ex=TTL)
+            except Exception as e:
+                logger.error(f"Chat processing error: {e}")
+                send_msg(nlu_template, "CHAT", "抱歉，我现在有点忙，稍后再聊吧", 1, time.time() - begin, status=2)
 
     except Exception as e:
         logger.error(
