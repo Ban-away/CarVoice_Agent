@@ -174,8 +174,15 @@ def inference(req):
                     broadcast=False
                 )
             else:
-                send_msg(nlu_result, "REJECT", prompts.DEFAULT_NLG, 1, time.time() - begin, status=-1)
-                logger.info(f"Query {query} has been rejected.")
+                # NLU未匹配到技能，回退到闲聊兜底
+                logger.info(f"Query {query} NLU unmatched, falling back to chat.")
+                try:
+                    is_hit_chat, full_answer = handle_chat(handler_bot, nlu_template, ori_query, sender_id, begin)
+                    if is_hit_chat:
+                        redis_client.set(REDIS_KEY.format(sender_id), f"CHAT#{query}#1#{full_answer}", ex=TTL)
+                except Exception as e:
+                    logger.error(f"Chat fallback error: {e}")
+                    send_msg(nlu_result, "REJECT", prompts.DEFAULT_NLG, 1, time.time() - begin, status=-1)
         else:
             # 闲聊模式：直接调用闲聊服务，跳过拒识检查
             try:

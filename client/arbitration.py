@@ -61,10 +61,10 @@ def request_arbitration(query, sender_id):
             r = r.decode("utf-8")
             if not r:
                 continue
-            r = r.lstrip("data: ")
+            r = r.removeprefix("data: ")
             if r == "[DONE]":
                 break
-            r = json.loads(r.lstrip("data: "))
+            r = json.loads(r)
             text = r["choices"][0]["delta"]["content"]
             if not text:
                 continue

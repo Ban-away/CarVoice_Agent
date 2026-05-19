@@ -1,4 +1,5 @@
 import os
+import re
 import requests
 import json
 import time
@@ -52,7 +53,7 @@ if __name__ == "__main__":
     while True:
         data["trace_id"] = rand_str(9)
         print("enter query: ")
-        query = input().strip()
+        query = re.sub(r'[\x00-\x1f\x7f]', '', input()).strip()
         data["query"] = query
         data["enable_dm"] = True 
         sio.emit("request_nlu", json.dumps(data, ensure_ascii=False))

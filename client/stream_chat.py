@@ -82,7 +82,7 @@ def process_chat(response, query, sender_id):
             r = r.decode("utf-8").strip()
             if not r:
                 continue
-            r = json.loads(r.lstrip("data: "))
+            r = json.loads(r.removeprefix("data: "))
             if r["choices"][0].get("finish_reason", {}) == "stop":
                 break
             text = r["choices"][0]["delta"]["content"]
