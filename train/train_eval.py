@@ -4,6 +4,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from sklearn import metrics
 import time
+import os
 from data_helper import get_time_dif
 from core.optimization import BertAdam
 from utils import logger
@@ -44,6 +45,7 @@ def train(config, model, train_iter, dev_iter, test_iter):
                 dev_acc, dev_loss = evaluate(config, model, dev_iter)
                 if dev_loss < dev_best_loss:
                     dev_best_loss = dev_loss
+                    os.makedirs(os.path.dirname(config.save_path), exist_ok=True)
                     torch.save(model.state_dict(), config.save_path)
                     improve = '*'
                     last_improve = total_batch
