@@ -91,7 +91,20 @@ EOF
     sleep 3
 }
 
-# 检查服务是否启动成功（通过检查端口）
+# 使用Python检查端口是否可连接
+check_port_open() {
+    local port=$1
+    python3 -c "
+import socket
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+sock.settimeout(1)
+result = sock.connect_ex(('127.0.0.1', $port))
+sock.close()
+print(1 if result == 0 else 0)
+" 2>/dev/null
+}
+
+# 检查服务是否启动成功（通过检查端口和日志）
 check_service_by_port() {
     local service_name=$1
     local port=$2
@@ -103,11 +116,22 @@ check_service_by_port() {
     
     echo -n "  等待启动..."
     while [ $attempt -le $max_attempts ]; do
-        if nc -z localhost $port 2>/dev/null; then
+        # 方法1：检查端口是否可连接
+        if [ "$(check_port_open $port)" = "1" ]; then
             echo ""
             echo "✅ $service_name 启动成功 (端口 $port)"
             return 0
         fi
+        
+        # 方法2：检查日志中是否有成功关键字
+        if [ -f "$log_file" ]; then
+            if grep -q "Ready to accept connections\|Uvicorn running on\|Running on all addresses\|Debug mode: off" "$log_file"; then
+                echo ""
+                echo "✅ $service_name 启动成功 (端口 $port)"
+                return 0
+            fi
+        fi
+        
         echo -n "."
         sleep $wait_time
         ((attempt++))
