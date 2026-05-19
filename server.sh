@@ -251,7 +251,7 @@ echo ""
 # 入口服务
 echo "启动入口服务 (端口 $ENTRY_PORT)..."
 cd "$BASE_DIR"
-nohup FLASK_SERVER_PORT=$ENTRY_PORT python -c "import sys; sys.path.insert(0, '.'); exec(open('start.py').read())" > "$BASE_DIR/log/start.log" 2>&1 &
+nohup env FLASK_SERVER_PORT=$ENTRY_PORT python -c "import sys; sys.path.insert(0, '.'); exec(open('start.py').read())" > "$BASE_DIR/log/start.log" 2>&1 &
 check_service_by_port "入口服务" $ENTRY_PORT "$BASE_DIR/log/start.log"
 
 # 汇总结果
