@@ -16,8 +16,8 @@ _redis_client = RedisClient()
 
 
 DOUBAO_API_KEY = os.environ.get("API_KEY", "")
-DOUBAO_BOT_URL = os.environ.get("BOT_URL", "https://ark.cn-beijing.volces.com/api/v3/bots/chat/completions")
-DOUBAO_BOT_MODEL = os.environ.get("CHAT_MODEL", "bot-20250227131955-snjfg")
+CHAT_URL = os.environ.get("CHAT_URL", "https://ark.cn-beijing.volces.com/api/v3/bots/chat/completions")
+CHAT_MODEL = os.environ.get("CHAT_MODEL", "bot-20250227131955-snjfg")
 SYSTEM_PROMPT = prompts.BOT_CHAT_SYSTEM_PROMPT
 
 
@@ -48,13 +48,13 @@ def request_chat(query, sender_id, multiturn=True):
     messages = messages_header + history + messages_now
     logger.info(f'request message:{messages}')
     data = {
-        "model": DOUBAO_BOT_MODEL, # doubao-pro 32k, deepseek-v3/v3.1
+        "model": CHAT_MODEL, # doubao-pro 32k, deepseek-v3/v3.1
         "messages": messages,
         "stream": True
     }
     try:
         response = requests.post(
-            DOUBAO_BOT_URL,
+            CHAT_URL,
             headers=headers,
             data=json.dumps(data),
             stream=True
