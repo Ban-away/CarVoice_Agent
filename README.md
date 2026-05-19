@@ -17,6 +17,7 @@
 - [📦 项目结构](#项目结构)
 - [🔄 端到端链路](#端到端链路)
 - [🧠 数据与模型目录说明](#数据与模型目录说明)
+- [📥 模型下载](#模型下载)
 - [⚙️ 配置要点](#配置要点)
 - [📊 训练与评测](#训练与评测)
 - [⚡ 快速运行](#快速运行)
@@ -232,6 +233,42 @@ start.py (SocketIO 入口)
 
 ---
 
+## 📥 模型下载
+
+### 1) 下载预训练模型
+
+项目提供一键下载脚本，自动下载所需的预训练模型：
+
+```bash
+# 设置 HuggingFace 镜像（国内加速）
+export HF_ENDPOINT=https://hf-mirror.com
+
+# 运行下载脚本
+python download_models.py
+```
+
+**脚本参数**：
+| 参数 | 说明 |
+|:---|:---|
+| `--preset core` | 下载核心模型（默认） |
+| `--base-dir <path>` | 指定项目目录 |
+| `--hf-token <token>` | HuggingFace token（用于私有模型） |
+
+**下载产物**：
+- `train/pretrained/chinese_roberta_wwm_ext/` - 意图识别模型基座
+- `train/pretrained/roberta_tiny_clue/` - 拒识模型基座
+
+### 2) 本地训练模型
+
+以下模型需要本地训练生成，不在自动下载范围内：
+
+- `train/saved/intent/bert.ckpt` - 微调后的意图识别模型
+- `train/saved/reject/bert_tiny.ckpt` - 微调后的拒识模型
+
+训练方法见 [训练与评测](#训练与评测) 章节。
+
+---
+
 ## ⚙️ 配置要点
 
 ### 1) 环境变量
@@ -281,9 +318,12 @@ Redis 用于会话历史和状态缓存：
 
 ## 📊 训练与评测
 
-### 1) 训练前准备
+### 1) 训练前准备（先下载基础模型）
 
-训练前需先加载环境变量：
+训练前分两步：
+
+1. 先设置 Hugging Face 镜像源，然后运行下载脚本，把基础预训练权重下载到 `train/pretrained/`。
+2. 再加载环境变量，执行下面的命令：
 
 ```bash
 source config/config.ini
@@ -322,6 +362,8 @@ python e2e_score.py
 
 `e2e_score.py` 会读取 `test/result/multi_test_output_labeled.txt`，按首列标注统计端到端准确率。
 
+> 评测前通常需要先完成训练，确保 `train/saved/intent/bert.ckpt` 和 `train/saved/reject/bert_tiny.ckpt` 已存在；否则对应服务无法正常加载模型。
+
 ### 5) 性能测试（Locust）
 
 使用 Locust 进行服务性能压测：
@@ -357,14 +399,19 @@ locust -f reject_benchmark.py --host http://127.0.0.1:8007 --headless -u 10 -r 5
 
 ```bash
 # 在项目根目录执行
+export HF_ENDPOINT=https://hf-mirror.com
 python download_models.py
 
 # 如需指定项目根目录或 HuggingFace Token
+export HF_ENDPOINT=https://hf-mirror.com
 python download_models.py --base-dir . --hf-token <token>
 ```
 
-> 该脚本会把两个基础模型下载到 `train/pretrained/`：
-> `chinese_roberta_wwm_ext` 和 `roberta_tiny_clue`。
+> 这一步请按顺序执行：先设置 `HF_ENDPOINT`，再运行下载脚本。
+>
+> 该脚本会把两个基础模型下载到 `train/pretrained/`：`chinese_roberta_wwm_ext` 和 `roberta_tiny_clue`。
+>
+> 这一步只准备初始化权重；`train/saved/intent/bert.ckpt` 和 `train/saved/reject/bert_tiny.ckpt` 仍需要本地训练后生成，评测和线上推理也依赖它们。
 
 ### 1) 安装依赖
 
