@@ -19,63 +19,76 @@ ENTRY_PORT=${ENTRY_PORT:-8080}
 # 失败服务列表
 FAILED_SERVICES=()
 
-# 使用Python检查并释放端口（仅释放当前项目相关进程）
-release_port_with_python() {
+# 使用Python检查端口是否被占用（同时检查IPv4和IPv6）
+check_port_python() {
     local port=$1
-    local python_code=$(cat << 'EOF'
+    python3 -c "
 import socket
-import os
-import signal
-
-def find_and_kill_project_process(port, base_dir):
+def check_port(port):
+    sock4 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock4.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    result4 = sock4.connect_ex(('127.0.0.1', port))
+    sock4.close()
+    
+    sock6 = socket.socket(socket.AF_INET6, socket.SOCK_STREAM)
+    sock6.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    result6 = sock6.connect_ex(('::1', port))
+    sock6.close()
+    
     try:
-        import subprocess
-        result = subprocess.run(['nc', '-z', 'localhost', str(port)], capture_output=True)
-        if result.returncode == 0:
-            print(f"Port {port} is in use")
-            # 遍历/proc查找占用端口的进程
-            for pid in os.listdir('/proc'):
-                if not pid.isdigit():
-                    continue
-                try:
-                    with open(f'/proc/{pid}/cmdline', 'r') as f:
-                        cmd = f.read()
-                    # 只处理Python进程
-                    if 'python' not in cmd.lower():
-                        continue
-                    # 检查是否是当前项目的进程（命令行包含项目目录）
-                    if base_dir in cmd:
-                        try:
-                            print(f"Killing project process {pid} using port {port}")
-                            os.kill(int(pid), signal.SIGTERM)
-                            return True
-                        except Exception as e:
-                            print(f"Failed to kill {pid}: {e}")
-                except:
-                    pass
-            print(f"Port {port} is used by other program, not killed")
-            return False
-        else:
-            return False
-    except Exception as e:
-        print(f"Error checking port {port}: {e}")
-        return False
+        sock_all = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock_all.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        sock_all.bind(('0.0.0.0', port))
+        sock_all.close()
+        can_bind = True
+    except:
+        can_bind = False
+    
+    return result4 == 0 or result6 == 0 or not can_bind
 
-find_and_kill_project_process(int('PORT_PLACEHOLDER'), 'BASE_DIR_PLACEHOLDER')
-EOF
-)
-    python3 -c "${python_code//PORT_PLACEHOLDER/$port}" 2>/dev/null | sed "s|BASE_DIR_PLACEHOLDER|$BASE_DIR|g"
-    sleep 2
+print(1 if check_port($port) else 0)
+" 2>/dev/null
 }
 
-# 检查端口是否被占用（仅使用nc命令，兼容更多系统）
+# 检查端口是否被占用
 check_port() {
     local port=$1
-    if nc -z localhost $port 2>/dev/null; then
+    local result=$(check_port_python $port)
+    if [ "$result" = "1" ]; then
         return 0  # 端口被占用
     else
         return 1  # 端口可用
     fi
+}
+
+# 使用Python释放端口（仅释放当前项目相关进程）
+release_port_with_python() {
+    local port=$1
+    python3 << EOF
+import os
+import signal
+
+base_dir = "$BASE_DIR"
+port = $port
+
+print(f"Checking port {port}...")
+for pid in os.listdir('/proc'):
+    if not pid.isdigit():
+        continue
+    try:
+        with open(f'/proc/{pid}/cmdline', 'r') as f:
+            cmd = f.read()
+        if 'python' not in cmd.lower():
+            continue
+        if base_dir in cmd:
+            print(f"Killing project process {pid}")
+            os.kill(int(pid), signal.SIGTERM)
+    except:
+        pass
+
+print(f"Waiting for port {port} to be released...")
+EOF
+    sleep 3
 }
 
 # 检查服务是否启动成功（通过检查端口）
@@ -84,20 +97,24 @@ check_service_by_port() {
     local port=$2
     local log_file=$3
     
-    local max_attempts=10
+    local max_attempts=15
     local attempt=1
+    local wait_time=2
     
+    echo -n "  等待启动..."
     while [ $attempt -le $max_attempts ]; do
         if nc -z localhost $port 2>/dev/null; then
+            echo ""
             echo "✅ $service_name 启动成功 (端口 $port)"
             return 0
         fi
-        sleep 2
+        echo -n "."
+        sleep $wait_time
         ((attempt++))
     done
     
-    # 获取日志最后3行作为错误原因
-    local error_msg=$(tail -n 3 "$log_file" 2>/dev/null | tr '\n' ';' || echo "未知错误")
+    echo ""
+    local error_msg=$(tail -n 5 "$log_file" 2>/dev/null | tr '\n' ';' || echo "未知错误")
     FAILED_SERVICES+=("$service_name: $error_msg")
     echo "❌ $service_name 启动失败: $error_msg"
     return 1
@@ -149,7 +166,6 @@ for port in "${PORTS[@]}"; do
     if check_port $port; then
         echo "⚠️ 端口 $port 已被占用"
         release_port_with_python $port
-        # 再次检查
         if check_port $port; then
             PORT_CONFLICTS+=("端口 $port")
         else
@@ -185,29 +201,30 @@ if [ ! -d "redis-6.0.8" ]; then
     echo "Redis编译完成"
 fi
 
-echo "启动Redis数据库..."
+echo ""
+echo "启动Redis数据库 (端口 $REDIS_PORT)..."
 nohup "$BASE_DIR/redis-6.0.8/src/redis-server" --port $REDIS_PORT > "$BASE_DIR/log/redis.log" 2>&1 &
 check_service_by_port "Redis" $REDIS_PORT "$BASE_DIR/log/redis.log"
 
-# 拒识服务
-echo "启动拒识服务..."
+echo ""
+echo "启动拒识服务 (端口 $REJECT_PORT)..."
 cd "$BASE_DIR/train"
 nohup python -c "import sys; sys.path.insert(0, '.'); exec(open('reject_infer.py').read())" > "$BASE_DIR/log/reject.log" 2>&1 &
 check_service_by_port "拒识服务" $REJECT_PORT "$BASE_DIR/log/reject.log"
 
-# 意图召回服务
-echo "启动意图识别服务..."
+echo ""
+echo "启动意图识别服务 (端口 $INTENT_PORT)..."
 nohup python -c "import sys; sys.path.insert(0, '.'); exec(open('intent_infer.py').read())" > "$BASE_DIR/log/intent.log" 2>&1 &
 check_service_by_port "意图识别服务" $INTENT_PORT "$BASE_DIR/log/intent.log"
 
-# 大模型nlu服务
-echo "启动NLU服务..."
+echo ""
+echo "启动NLU服务 (端口 $NLU_PORT)..."
 cd "$BASE_DIR/function_call"
 nohup python -c "import sys; sys.path.insert(0, '.'); exec(open('chatnlu_infer.py').read())" > "$BASE_DIR/log/nlu.log" 2>&1 &
 check_service_by_port "NLU服务" $NLU_PORT "$BASE_DIR/log/nlu.log"
 
-# 入口服务
-echo "启动入口服务..."
+echo ""
+echo "启动入口服务 (端口 $ENTRY_PORT)..."
 cd "$BASE_DIR"
 nohup python -c "import sys; sys.path.insert(0, '.'); exec(open('start.py').read())" > "$BASE_DIR/log/start.log" 2>&1 &
 check_service_by_port "入口服务" $ENTRY_PORT "$BASE_DIR/log/start.log"
