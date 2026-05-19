@@ -180,4 +180,6 @@ async def inference(request: Request):
     return response
 
 if __name__ == '__main__':
-    uvicorn.run(app, host='0.0.0.0', port=8009, workers=1)
+    import os
+    port = int(os.environ.get('NLU_PORT', 8009))
+    uvicorn.run(app, host='0.0.0.0', port=port, workers=1)

@@ -1,10 +1,12 @@
 import redis
 
  
+import os
+
 class RedisDBConfig:
-    HOST = '127.0.0.1'
-    PORT = 6379
-    DBID = 0
+    HOST = os.environ.get('REDIS_HOST', '127.0.0.1')
+    PORT = int(os.environ.get('REDIS_PORT', 6379))
+    DBID = int(os.environ.get('REDIS_DBID', 0))
  
 def operator_status(func):
     '''get operatoration status

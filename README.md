@@ -194,6 +194,7 @@ start.py (SocketIO 入口)
 
 | 服务 | 文件 | 默认端口 | 路径 |
 |:---:|:---|:---:|:---|
+| Redis | 内置 | 6379 | - |
 | 入口服务 | `start.py` | 8080 | Socket 事件：`request_nlu` |
 | 拒识服务 | `train/reject_infer.py` | 8007 | `POST /reject-server/v1` |
 | 意图服务 | `train/intent_infer.py` | 8008 | `POST /intent-server/v1` |
@@ -343,6 +344,26 @@ cd ..
 ```bash
 bash server.sh
 ```
+
+#### 端口配置
+
+所有服务端口支持通过环境变量自定义：
+
+```bash
+# 更换所有端口
+REDIS_PORT=6380 REJECT_PORT=8017 INTENT_PORT=8018 NLU_PORT=8019 ENTRY_PORT=8090 bash server.sh
+
+# 只更换被占用的端口（比如只换 Redis 和入口服务）
+REDIS_PORT=6380 ENTRY_PORT=8090 bash server.sh
+```
+
+| 环境变量 | 对应服务 | 默认值 |
+|:---|:---|:---:|
+| `REDIS_PORT` | Redis | 6379 |
+| `REJECT_PORT` | 拒识服务 | 8007 |
+| `INTENT_PORT` | 意图服务 | 8008 |
+| `NLU_PORT` | NLU 服务 | 8009 |
+| `ENTRY_PORT` | 入口服务 | 8080 |
 
 #### 方式一：脚本一键启动（推荐）
 

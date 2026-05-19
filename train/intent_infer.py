@@ -76,4 +76,6 @@ async def inference(request: Request):
 
 
 if __name__ == '__main__':
-    uvicorn.run(app, host='0.0.0.0', port=8008, workers=1)  # 在指定端口和主机上启动应用
+    import os
+    port = int(os.environ.get('INTENT_PORT', 8008))
+    uvicorn.run(app, host='0.0.0.0', port=port, workers=1)  # 在指定端口和主机上启动应用

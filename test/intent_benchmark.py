@@ -3,6 +3,7 @@
 locust -f intent_benchmark.py  --host http://127.0.0.1:8008  --headless -u 1000 -r 100 -t 60s
 """
 
+import os
 import random
 import uuid
 from locust import HttpUser, task, between
@@ -17,7 +18,8 @@ class User(HttpUser):
     @task
     def task_post_archive(self):
         trace_id = f'cevi{uuid.uuid4().hex}'
-        testServer = 'http://127.0.0.1:8008'
+        port = os.environ.get('INTENT_PORT', '8008')
+        testServer = f'http://127.0.0.1:{port}'
         path = '/intent-server/v1'
         url = f'{testServer}{path}'
         headers = {
