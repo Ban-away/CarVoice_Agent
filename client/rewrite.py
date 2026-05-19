@@ -9,8 +9,8 @@ from utils.redis_tool import RedisClient
 
 TTL = 40
 MAX_HISTORY = 6
-DOUBAO_API_KEY = os.environ["API_KEY"]
-DOUBAO_URL = os.environ["BASE_URL"]
+DOUBAO_API_KEY = os.environ.get("API_KEY", "")
+DOUBAO_URL = os.environ.get("BASE_URL", "https://ark.cn-beijing.volces.com/api/v3/chat/completions")
 REDIS_KEY = "voice:rewrite_history:{}"
 _redis_client = RedisClient() 
 

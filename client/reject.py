@@ -6,8 +6,8 @@ from utils import logger
 from typing import List
 
 
-THRESHOLD = 0.5
-REJECT_URL = os.environ["REJECT_URL"]
+THRESHOLD = float(os.environ.get("REJECT_THRESHOLD", 0.7))
+REJECT_URL = os.environ.get("REJECT_URL", "http://127.0.0.1:8007/reject-server/v1")
 
 
 def request_reject(query, trace_id):

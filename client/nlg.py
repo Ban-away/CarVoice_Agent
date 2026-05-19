@@ -8,8 +8,8 @@ from utils import logger
 
 
 TIMEOUT = 10.0
-DOUBAO_API_KEY = os.environ["API_KEY"]
-DOUBAO_URL = os.environ["BASE_URL"]
+DOUBAO_API_KEY = os.environ.get("API_KEY", "")
+DOUBAO_URL = os.environ.get("BASE_URL", "https://ark.cn-beijing.volces.com/api/v3/chat/completions")
 NLG_PROMPT = prompts.NLG_PROMPT
 
 
