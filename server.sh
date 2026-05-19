@@ -19,12 +19,10 @@ ENTRY_PORT=${ENTRY_PORT:-8080}
 # 失败服务列表
 FAILED_SERVICES=()
 
-# 检查端口是否被占用
+# 检查端口是否被占用（仅使用nc命令，兼容更多系统）
 check_port() {
     local port=$1
-    if ss -tlnp | grep -q ":$port "; then
-        return 0  # 端口被占用
-    elif nc -z localhost $port 2>/dev/null; then
+    if nc -z localhost $port 2>/dev/null; then
         return 0  # 端口被占用
     else
         return 1  # 端口可用
@@ -129,7 +127,7 @@ if [ ${#PORT_CONFLICTS[@]} -gt 0 ]; then
     echo "  export ENTRY_PORT=8090"
     echo ""
     echo "示例："
-    echo "  REDIS_PORT=6380 REJECT_PORT=8017 bash server.sh"
+    echo "  REDIS_PORT=6380 NLU_PORT=8019 ENTRY_PORT=8090 bash server.sh"
     exit 1
 fi
 

@@ -318,6 +318,26 @@ cd ..
 - `train/saved/intent/bert.ckpt`
 - `train/saved/reject/bert_tiny.ckpt`
 
+#### 训练结果示例
+
+**意图识别模型（bert-large）训练结果**：
+| 指标 | 数值 |
+|:---|:---|
+| Accuracy | 85.19% |
+| Accuracy@3 | 96.59% |
+| Accuracy@5 | 97.62% |
+| Precision | 88.88% |
+| Recall | 84.60% |
+| F1 | 84.24% |
+
+**拒识模型（bert-tiny）训练结果**：
+| 指标 | 数值 |
+|:---|:---|
+| Accuracy | 89.71% |
+| Precision | 89.65% |
+| Recall | 89.74% |
+| F1 | 89.69% |
+
 ### 5) 启动服务
 
 ```bash
