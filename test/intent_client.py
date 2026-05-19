@@ -5,7 +5,7 @@ import json
 from tqdm import tqdm
 
 
-URL = os.environ["INTENT_URL"]
+URL = os.environ.get("INTENT_URL", "http://127.0.0.1:8008/intent-server/v1")
 
 def get_completion(query):
     headers = {'Content-Type': 'application/json'}
