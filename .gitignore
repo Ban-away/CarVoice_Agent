@@ -65,4 +65,4 @@ Thumbs.db
 *.log
 logs/
 log/
-train/result/"config/config.ini" 
+config/config.ini
