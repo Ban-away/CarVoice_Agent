@@ -14,9 +14,11 @@
   python download_models.py --hf-token <token>
 """
 
-from dotenv import load_dotenv
-
-load_dotenv()
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
 
 import argparse
 import os
