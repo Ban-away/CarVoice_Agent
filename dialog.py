@@ -8,7 +8,9 @@ from time import sleep
 import socketio
 
 
-URL = os.environ["ENTRY_URL"]
+# 从环境变量获取入口URL，支持动态端口配置
+entry_port = os.environ.get('ENTRY_PORT', '8080')
+URL = os.environ.get("ENTRY_URL", f"http://127.0.0.1:{entry_port}/request_nlu")
 
 sio = socketio.Client()
 
