@@ -341,9 +341,20 @@ cd ..
 
 ### 5) 启动服务
 
+#### 方式一：脚本一键启动（推荐）
+
+完成前面的步骤后，直接执行以下命令即可启动所有服务：
+
 ```bash
 bash server.sh
 ```
+
+脚本会依次启动：
+1. **Redis**（首次运行会自动下载并编译 Redis 6.0.8，后续直接启动）
+2. **拒识服务**（端口 8007）
+3. **意图识别服务**（端口 8008）
+4. **NLU 服务**（端口 8009）
+5. **入口服务**（端口 8080）
 
 #### 端口配置
 
@@ -357,7 +368,7 @@ REDIS_PORT=6380 REJECT_PORT=8017 INTENT_PORT=8018 NLU_PORT=8019 ENTRY_PORT=8090 
 REDIS_PORT=6380 ENTRY_PORT=8090 bash server.sh
 ```
 
-| 环境变量 | 对应服务 | 默认值 |
+| 环境变量 | 对应服务 | 默认端口 |
 |:---|:---|:---:|
 | `REDIS_PORT` | Redis | 6379 |
 | `REJECT_PORT` | 拒识服务 | 8007 |
@@ -365,53 +376,48 @@ REDIS_PORT=6380 ENTRY_PORT=8090 bash server.sh
 | `NLU_PORT` | NLU 服务 | 8009 |
 | `ENTRY_PORT` | 入口服务 | 8080 |
 
-#### 方式一：脚本一键启动（推荐）
-
-完成上面的 1-5 步后，直接执行 `bash server.sh` 即可，它会依次启动：
-1. Redis（首次运行会自动下载并编译）
-2. 拒识服务
-3. 意图识别服务
-4. NLU 服务
-5. 入口服务
-
 #### 方式二：手动逐服务启动
 
-```bash
-# 终端 A：启动 Redis（必须先启动）
-redis-server
+如需单独调试某个服务，可按以下顺序手动启动：
 
-# 终端 B：拒识
+```bash
+# 终端 1：启动 Redis（必须先启动）
+redis-server --port 6379
+
+# 终端 2：启动拒识服务
 cd train
 python reject_infer.py
 
-# 终端 C：意图
+# 终端 3：启动意图识别服务
 cd train
 python intent_infer.py
 
-# 终端 D：NLU
+# 终端 4：启动 NLU 服务
 cd function_call
 python chatnlu_infer.py
 
-# 终端 E：入口
-cd .
+# 终端 5：启动入口服务
+cd ..
 python start.py
 ```
 
-### 6) 运行联调样例
+#### 运行联调样例
+
+服务启动后，可通过以下方式测试：
 
 ```bash
-# 单次 Socket 调用
+# 交互式 Socket 测试（推荐）
 python dialog.py
 
 # 多轮批量测试（读取 test/data/multi_test.txt）
 python test.py
 ```
 
-### Windows 启动提示
+#### Windows 启动提示
 
 `config/config.ini` 使用的是 `export` 语法，不可直接在 `cmd` 中执行。可选方案：
 
-1. 使用 Git Bash / WSL 执行 `source config/config.ini`
+1. 使用 **Git Bash** 或 **WSL** 执行：`source config/config.ini`
 2. 在系统环境变量中手动配置上述键值
 3. 改写为 `.bat` 版本后通过 `cmd` 启动
 

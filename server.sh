@@ -16,6 +16,28 @@ INTENT_PORT=${INTENT_PORT:-8008}
 NLU_PORT=${NLU_PORT:-8009}
 ENTRY_PORT=${ENTRY_PORT:-8080}
 
+# 服务状态跟踪
+declare -A SERVICE_STATUS
+declare -A SERVICE_PORTS
+declare -A SERVICE_LOGS
+
+# 注册服务信息
+register_service() {
+    local name=$1
+    local port=$2
+    local log_file=$3
+    SERVICE_STATUS[$name]="pending"
+    SERVICE_PORTS[$name]=$port
+    SERVICE_LOGS[$name]=$log_file
+}
+
+# 更新服务状态
+update_status() {
+    local name=$1
+    local status=$2
+    SERVICE_STATUS[$name]=$status
+}
+
 # 失败服务列表
 FAILED_SERVICES=()
 
@@ -118,6 +140,7 @@ check_service_by_port() {
     while [ $attempt -le $max_attempts ]; do
         # 方法1：检查端口是否可连接
         if [ "$(check_port_open $port)" = "1" ]; then
+            update_status "$service_name" "running"
             echo ""
             echo "✅ $service_name 启动成功 (端口 $port)"
             return 0
@@ -126,6 +149,7 @@ check_service_by_port() {
         # 方法2：检查日志中是否有成功关键字
         if [ -f "$log_file" ]; then
             if grep -q "Ready to accept connections\|Uvicorn running on\|Running on all addresses\|Debug mode: off" "$log_file"; then
+                update_status "$service_name" "running"
                 echo ""
                 echo "✅ $service_name 启动成功 (端口 $port)"
                 return 0
@@ -139,6 +163,26 @@ check_service_by_port() {
     
     echo ""
     local error_msg=$(tail -n 5 "$log_file" 2>/dev/null | tr '\n' ';' || echo "未知错误")
+    
+    # 智能检测失败原因
+    if [ "$(check_port_open $port)" = "1" ]; then
+        # 端口可连接，说明服务可能已在运行或被其他程序占用
+        error_msg="端口 $port 已被占用（服务可能已在运行或被其他程序占用）"
+    elif check_port $port; then
+        # 端口被占用但无法连接
+        error_msg="端口 $port 被占用但无法连接（可能是防火墙或权限问题）"
+    else
+        # 端口未被占用，说明是程序内部错误
+        # 从日志中提取更具体的错误信息
+        if [ -f "$log_file" ]; then
+            local python_error=$(grep -E "Error|error|Traceback|Exception" "$log_file" | tail -n 1)
+            if [ -n "$python_error" ]; then
+                error_msg="${python_error:0:100}..."
+            fi
+        fi
+    fi
+    
+    update_status "$service_name" "failed"
     FAILED_SERVICES+=("$service_name: $error_msg")
     echo "❌ $service_name 启动失败: $error_msg"
     return 1
@@ -225,6 +269,13 @@ if [ ! -d "redis-6.0.8" ]; then
     echo "Redis编译完成"
 fi
 
+# 注册所有服务
+register_service "Redis" $REDIS_PORT "$BASE_DIR/log/redis.log"
+register_service "拒识服务" $REJECT_PORT "$BASE_DIR/log/reject.log"
+register_service "意图识别服务" $INTENT_PORT "$BASE_DIR/log/intent.log"
+register_service "NLU服务" $NLU_PORT "$BASE_DIR/log/nlu.log"
+register_service "入口服务" $ENTRY_PORT "$BASE_DIR/log/start.log"
+
 echo ""
 echo "启动Redis数据库 (端口 $REDIS_PORT)..."
 nohup "$BASE_DIR/redis-6.0.8/src/redis-server" --port $REDIS_PORT > "$BASE_DIR/log/redis.log" 2>&1 &
@@ -257,7 +308,35 @@ check_service_by_port "入口服务" $ENTRY_PORT "$BASE_DIR/log/start.log"
 # 汇总结果
 echo ""
 echo "=================== 启动结果汇总 ==================="
-if [ ${#FAILED_SERVICES[@]} -eq 0 ]; then
+echo ""
+echo "服务状态详情："
+echo "----------------------------------------------------"
+echo "| 服务名称     | 端口  | 状态    |"
+echo "----------------------------------------------------"
+
+local success_count=0
+local fail_count=0
+
+for service in "${!SERVICE_STATUS[@]}"; do
+    local port=${SERVICE_PORTS[$service]}
+    local status=${SERVICE_STATUS[$service]}
+    
+    if [ "$status" = "running" ]; then
+        echo "| $service | $port | ✅ 运行中  |"
+        ((success_count++))
+    elif [ "$status" = "failed" ]; then
+        echo "| $service | $port | ❌ 失败    |"
+        ((fail_count++))
+    else
+        echo "| $service | $port | ⚠️ 未知    |"
+        ((fail_count++))
+    fi
+done
+
+echo "----------------------------------------------------"
+echo ""
+
+if [ $fail_count -eq 0 ]; then
     echo "🎉 所有服务启动成功！"
     echo ""
     echo "服务端口列表："
