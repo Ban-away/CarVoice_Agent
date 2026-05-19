@@ -21,9 +21,9 @@ app = FastAPI()
 
 MAX_CONF = 0.98
 TIMEOUT = 5
-INTENT_URL = os.environ.get("INTENT_URL", "http://127.0.0.1:8008/intent-server/v1")
-DOUBAO_API_KEY = os.environ.get("API_KEY", "")
-DOUBAO_URL = os.environ.get("BASE_URL", "https://ark.cn-beijing.volces.com/api/v3/chat/completions")
+INTENT_URL = os.environ.get("INTENT_URL")
+DOUBAO_API_KEY = os.environ.get("API_KEY")
+DOUBAO_URL = os.environ.get("BASE_URL")
 
 
 id2func = {}

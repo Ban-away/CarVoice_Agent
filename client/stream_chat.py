@@ -15,9 +15,9 @@ REDIS_KEY = "voice:chat_history:{}"
 _redis_client = RedisClient() 
 
 
-DOUBAO_API_KEY = os.environ.get("API_KEY", "")
-CHAT_URL = os.environ.get("CHAT_URL", "https://ark.cn-beijing.volces.com/api/v3/bots/chat/completions")
-CHAT_MODEL = os.environ.get("CHAT_MODEL", "bot-20250227131955-snjfg")
+DOUBAO_API_KEY = os.environ.get("API_KEY")
+CHAT_URL = os.environ.get("CHAT_URL")
+CHAT_MODEL = os.environ.get("CHAT_MODEL")
 SYSTEM_PROMPT = prompts.BOT_CHAT_SYSTEM_PROMPT
 
 

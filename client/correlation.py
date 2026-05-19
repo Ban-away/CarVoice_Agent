@@ -12,9 +12,9 @@ TIMEOUT = 2.0
 REDIS_KEY = "voice:last_service:{}"
 _redis_client = RedisClient() 
 
-DOUBAO_API_KEY = os.environ.get("API_KEY", "")
-DOUBAO_URL = os.environ.get("BASE_URL", "https://ark.cn-beijing.volces.com/api/v3/chat/completions")
-CORRELATION_MODEL = os.environ.get("CORRELATION_MODEL", "ep-20241203180921-h2kgz")
+DOUBAO_API_KEY = os.environ.get("API_KEY")
+DOUBAO_URL = os.environ.get("BASE_URL")
+CORRELATION_MODEL = os.environ.get("CORRELATION_MODEL")
 CORRELATION_SYSTEM = prompts.CORRELATION_SYSTEM
 CORRELATION_PROMPT = prompts.CORRELATION_PROMPT
 

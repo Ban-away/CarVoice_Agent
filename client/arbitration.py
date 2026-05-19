@@ -16,9 +16,9 @@ REDIS_KEY = "voice:arbitration_history:"
 _redis_client = RedisClient() 
 
 
-API_KEY = os.environ.get("API_KEY", "")
-ARBITRATION_URL = os.environ.get("ARBITRATION_URL", "https://ark.cn-beijing.volces.com/api/v3/chat/completions")
-ARBITRATION_MODEL = os.environ.get("ARBITRATION_MODEL", "ep-20250122160643-vj459")
+API_KEY = os.environ.get("API_KEY")
+ARBITRATION_URL = os.environ.get("ARBITRATION_URL")
+ARBITRATION_MODEL = os.environ.get("ARBITRATION_MODEL")
 SYSTEM_PROMPT = prompts.ARBITRAION_SYSTEM_PROMPT
 
 
