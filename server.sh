@@ -314,12 +314,12 @@ echo "----------------------------------------------------"
 echo "| 服务名称     | 端口  | 状态    |"
 echo "----------------------------------------------------"
 
-local success_count=0
-local fail_count=0
+success_count=0
+fail_count=0
 
 for service in "${!SERVICE_STATUS[@]}"; do
-    local port=${SERVICE_PORTS[$service]}
-    local status=${SERVICE_STATUS[$service]}
+    port=${SERVICE_PORTS[$service]}
+    status=${SERVICE_STATUS[$service]}
     
     if [ "$status" = "running" ]; then
         echo "| $service | $port | ✅ 运行中  |"
