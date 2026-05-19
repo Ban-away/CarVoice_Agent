@@ -327,10 +327,12 @@ pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple --ti
 ### 2) 下载预训练模型
 
 ```bash
+# 普通用户（公开模型）直接运行
 export HF_ENDPOINT=https://hf-mirror.com
 python download_models.py
 
-python download_models.py --base-dir . --hf-token <token>
+# 如需指定目录或使用私有模型
+python download_models.py --base-dir /path/your/project --hf-token your_actual_token_here
 ```
 
 > 脚本会把两个基础模型下载到 `train/pretrained/`：`chinese_roberta_wwm_ext` 和 `roberta_tiny_clue`。
