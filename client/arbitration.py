@@ -18,6 +18,7 @@ _redis_client = RedisClient()
 
 API_KEY = os.environ.get("API_KEY", "")
 DOUBAO_URL = os.environ.get("BASE_URL", "https://ark.cn-beijing.volces.com/api/v3/chat/completions")
+DOUBAO_MODEL = os.environ.get("ARBITRATION_MODEL", "ep-20250122160643-vj459")
 SYSTEM_PROMPT = prompts.ARBITRAION_SYSTEM_PROMPT
 
 
@@ -41,7 +42,7 @@ def request_arbitration(query, sender_id):
         message.extend(history)
 
         body = dict(
-            model="ep-20250122160643-vj459", #doubao-pro 32k, deepseek-v3/v3.1
+            model=DOUBAO_MODEL, #doubao-pro 32k, deepseek-v3/v3.1
             messages=message,
             max_tokens=MAX_TOKEN,
             temperature=0,
