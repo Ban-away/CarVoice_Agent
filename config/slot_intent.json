@@ -680,7 +680,8 @@
         "POI": "POI",
         "City": "city",
         "Target": "landmark",
-        "index": "选项"
+        "index": "选项",
+        "Rating": "评分"
     },
     "Add_Via": {
         "POI": "POI",

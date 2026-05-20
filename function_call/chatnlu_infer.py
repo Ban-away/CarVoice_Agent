@@ -156,17 +156,36 @@ def _is_vague_degree(query):
     if re.search(r'十[一二三四五六七八九零]', query):
         return False
     vague_patterns = [
-        "一点", "一些", "小一点", "大一点", "少一点", "多一点",
+        "小一点", "大一点", "少一点", "多一点",
         "调低点", "调高点", "降低点", "升高点", "降点", "升点",
-        "小点", "大点",
-        "稍微", "略微", "稍稍", "轻微", "些微",
+        "稍微", "略微", "稍稍",
         "再低", "再高", "再大", "再小", "再亮", "再暗",
         "低些", "高些", "暗些", "亮些", "大些", "小些", "降些", "弱些",
         "暗点", "调暗点", "调一调",
         "别太用力", "别太大",
-        "降一降", "加重点", "减弱", "别那么大", "重一点", "轻点",
+        "降一降", "加重点", "别那么大", "轻点",
     ]
+    # "一点"需排除"有点"、"好一点"等非程度表达
+    if "一点" in query and not re.search(r'(有|好|差|看)一点', query):
+        return True
+    # "一些"需排除"那些"、"这些"、"哪些"等
+    if "一些" in query and not re.search(r'[那这哪]些', query):
+        return True
     return any(p in query for p in vague_patterns)
+
+
+def _cn_num(s):
+    """中文数字转阿拉伯数字，仅处理含'十'的简单情况"""
+    cn_map = {"零": "0", "一": "1", "二": "2", "三": "3", "四": "4",
+              "五": "5", "六": "6", "七": "7", "八": "8", "九": "9"}
+    if "十" not in s:
+        return "".join(cn_map.get(ch, ch) for ch in s)
+    parts = s.split("十")
+    if len(parts) == 2:
+        left = cn_map.get(parts[0], parts[0]) if parts[0] else "1"
+        right = cn_map.get(parts[1], parts[1]) if parts[1] else "0"
+        return left + right
+    return "".join(cn_map.get(ch, ch) for ch in s)
 
 
 def _extract_extreme(query):
@@ -266,12 +285,52 @@ async def inference(request: Request):
         elif k == "选项" and slots[k] == "1" and "第" not in query:
             del slots[k]
 
+    # Check_Car_Condition 参数幻觉过滤
+    if func_name == "Check_Car_Condition":
+        car_kw = {
+            "tire": ["胎压", "轮胎"],
+            "gas": ["油耗", "油量", "耗油", "耗几升"],
+            "range": ["续航", "剩余油", "还能跑", "能跑多", "该去加油", "去加油"],
+            "total": ["总里程", "总公里", "总共.*公里", "跑了.*公里", "行驶里程"],
+            "Maintenance": ["保养", "维保"],
+        }
+        for k in list(slots.keys()):
+            if k in car_kw:
+                if not any(re.search(kw, query) for kw in car_kw[k]):
+                    del slots[k]
+
+    # Go_POI: POI=目的地 幻觉过滤
+    if func_name == "Go_POI" and "POI" in slots and slots["POI"] == "目的地":
+        if not re.search(r'目的地|公司地址|公司所在地|我家|导航.*设为', query):
+            del slots["POI"]
+
+    # 媒体源=USB音乐 幻觉过滤
+    if "媒体源" in slots and slots["媒体源"] == "USB音乐":
+        if not re.search(r'usb|USB|U盘|u盘', query):
+            del slots["媒体源"]
+
+    # 音源=所有 幻觉过滤：仅当 query 完全没有音源相关关键词时才删除
+    if "音源" in slots and slots["音源"] == "所有":
+        sound_kw = ["全部", "所有", "统统", "静音", "安静", "听不见", "音量"]
+        if not any(kw in query for kw in sound_kw):
+            del slots["音源"]
+
     # 关键词兜底：补充 LLM 遗漏的槽位
     func_slot_def = slot_map.get(func_name)
     if isinstance(func_slot_def, dict):
         expected_keys = set(func_slot_def.values())
         if "位置" in expected_keys and "位置" not in slots:
             pos = _extract_position(query)
+            # "车里"/"车内"/"车中" 只在 Set_/Dec_/Inc_ 类函数中映射为 "所有"
+            if pos == "所有" and func_name:
+                if not any(func_name.startswith(p) for p in
+                           ["Set_", "Dec_", "Inc_", "Open_Air_Condition_Auto",
+                            "Close_Air_Condition_Auto", "Open_Air_Condition_Sync",
+                            "Close_Air_Condition_Sync"]):
+                    explicit_all = any(kw in query for kw in
+                                       ["所有", "全部", "每一个", "全车", "全都", "所有的", "每个"])
+                    if not explicit_all:
+                        pos = None
             if pos:
                 slots["位置"] = pos
         if "Extreme" in expected_keys and "Extreme" not in slots:
@@ -283,6 +342,13 @@ async def inference(request: Request):
             if func_name and "Sound_Volume" not in func_name:
                 if _is_vague_degree(query):
                     slots["number"] = "1"
+
+    # 格式修正：节目名称去除多余的"第"
+    if "节目名称" in slots:
+        val = slots["节目名称"]
+        val = re.sub(r'第(\d+)', r'\1', val)
+        val = re.sub(r'第([一二三四五六七八九十]+)', lambda m: _cn_num(m.group(1)), val)
+        slots["节目名称"] = val
 
     response = {
         "query": query,

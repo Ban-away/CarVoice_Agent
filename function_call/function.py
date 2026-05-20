@@ -6364,6 +6364,10 @@ tools1 = [
                     "index": {
                         "type": "string",
                         "description": "第x个，请提取为阿拉伯数字",
+                    },
+                    "Rating": {
+                        "type": "string",
+                        "description": "用户要求的最低评分数字。仅当用户明确提到评分要求（如评分超过4.5分）时才提取，否则为空。",
                     }
                 },
                 "required": ["POI", "City"]
@@ -6397,6 +6401,10 @@ tools1 = [
                     "index": {
                         "type": "string",
                         "description": "第x个，请提取为阿拉伯数字",
+                    },
+                    "Rating": {
+                        "type": "string",
+                        "description": "用户要求的最低评分数字。仅当用户明确提到评分要求（如评分超过4.5分）时才提取，否则为空。",
                     }
                 },
                 "required": ["POI", "Target"]

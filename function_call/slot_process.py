@@ -7,6 +7,11 @@ def value_process(key, value):
         "所有的": "所有",
         "主驾驶": "主驾",
         "副驾驶": "副驾",
+        "司机": "主驾",
+        "驾驶位": "主驾",
+        "左前": "主驾",
+        "右前": "副驾",
+        "usb音乐": "USB音乐",
     }
     value = value_norm.get(value, value)
 
