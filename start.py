@@ -163,7 +163,12 @@ def inference(req):
             f"TraceID:{trace_id}, query:{query}, arbitration result: {arbitration_result}, cost time: {time.time() - begin}")
 
         # 开始仲裁
-        if arbitration_result == "task":
+        if arbitration_result == "chat":
+            # 仲裁为闲聊，直接走chat
+            is_hit_chat, full_answer = handle_chat(handler_bot, nlu_template, ori_query, sender_id, begin)
+            if is_hit_chat:
+                redis_client.set(REDIS_KEY.format(sender_id), f"CHAT#{query}#1#{full_answer}", ex=TTL)
+        elif arbitration_result == "task":
             nlu_result = handler_nlu.result()
             # 技能
             if nlu_result.get("function", "") not in ["Unknown"]:
@@ -177,15 +182,20 @@ def inference(req):
                     broadcast=False
                 )
             else:
-                send_msg(nlu_result, "REJECT", prompts.DEFAULT_NLG, 1, time.time() - begin, status=-1)
-                logger.info(f"Query {query} has been rejected.")
+                # NLU未识别，回退到chat
+                is_hit_chat, full_answer = handle_chat(handler_bot, nlu_template, ori_query, sender_id, begin)
+                if is_hit_chat:
+                    redis_client.set(REDIS_KEY.format(sender_id), f"CHAT#{query}#1#{full_answer}", ex=TTL)
+                else:
+                    send_msg(nlu_result, "REJECT", prompts.DEFAULT_NLG, 1, time.time() - begin, status=-1)
+                    logger.info(f"Query {query} has been rejected.")
         else:
-            # 拒识
+            # faq路径，检查拒识模型
             reject_result = handler_reject.result()
             if reject_result == 0:
                 correlation_result = handler_correlation.result()
                 if correlation_result == "是":
-                    reject_result = 1 
+                    reject_result = 1
             if reject_result == 0:
                 send_msg(nlu_template, "REJECT", "", 1, time.time() - begin, status=-1)
                 logger.info(f"Query {query} has been rejected.")
