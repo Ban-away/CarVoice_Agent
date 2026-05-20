@@ -235,27 +235,7 @@ start.py (SocketIO 入口)
 
 ## ⚙️ 配置要点
 
-### 1) 环境变量
-
-项目通过环境变量读取外部接口与服务地址。`config/config.ini` 提供了模板（内容实际是 shell `export` 风格）：
-
-```bash
-# 生成与仲裁模型
-export API_KEY="Bearer xxxx"
-export BASE_URL="https://ark.cn-beijing.volces.com/api/v3/chat/completions"
-export BOT_URL="https://ark.cn-beijing.volces.com/api/v3/bots/chat/completions"
-
-# 地图服务
-export AMAP_MAPS_API_KEY="xxxx"
-
-# 微服务地址
-export REJECT_URL="http://127.0.0.1:8007/reject-server/v1"
-export INTENT_URL="http://127.0.0.1:8008/intent-server/v1"
-export NLU_URL="http://127.0.0.1:8009/chatnlu-server/v1"
-export ENTRY_URL="http://127.0.0.1:8080/request_nlu"
-```
-
-### 2) Redis（自动启动）
+### 1) Redis（自动启动）
 
 使用 `bash server.sh` 一键启动时，**Redis 会自动启动**：
 - 首次运行：自动下载并编译 Redis 6.0.8
@@ -268,7 +248,7 @@ Redis 用于会话历史和状态缓存：
 - 闲聊历史：`voice:chat_history:*`
 - 最近服务状态：`voice:last_service:*`
 
-### 3) 目录准备
+### 2) 目录准备
 
 建议预先创建目录：
 
@@ -297,13 +277,7 @@ python download_models.py
 
 > 脚本会把两个基础模型下载到 `train/pretrained/`：`chinese_roberta_wwm_ext` 和 `roberta_tiny_clue`。
 
-### 3) 加载环境变量（Linux/macOS）
-
-```bash
-source config/config.ini
-```
-
-### 4) 训练模型（首次运行必须执行）
+### 3) 训练模型（首次运行必须执行）
 
 ```bash
 cd train
@@ -319,19 +293,9 @@ cd ..
 - `train/saved/intent/bert.ckpt`
 - `train/saved/reject/bert_tiny.ckpt`
 
-### 5) 启动服务
+### 4) 启动服务
 
-#### 停止服务
-
-如果需要重新启动服务，可先停止所有相关进程：
-
-```bash
-# 停止所有 Python 服务
-pkill -f python
-
-# 停止 Redis 服务
-pkill -f redis-server
-```
+> 如需重启，先停止已有进程：`pkill -f python && pkill -f redis-server`
 
 #### 方式一：脚本一键启动（推荐）
 
@@ -405,13 +369,12 @@ python dialog.py
 python test.py
 ```
 
-#### Windows 启动提示
+#### 停止服务
 
-`config/config.ini` 使用的是 `export` 语法，不可直接在 `cmd` 中执行。可选方案：
-
-1. 使用 **Git Bash** 或 **WSL** 执行：`source config/config.ini`
-2. 在系统环境变量中手动配置上述键值
-3. 改写为 `.bat` 版本后通过 `cmd` 启动
+```bash
+pkill -f python
+pkill -f redis-server
+```
 
 ---
 
@@ -419,34 +382,15 @@ python test.py
 
 > 评测前需确保所有服务已启动，且 `train/saved/intent/bert.ckpt` 和 `train/saved/reject/bert_tiny.ckpt` 已存在。
 
-### 1) 拒识模型：准确率 + QPS + 延迟
+### 1) 模型准确率
 
 ```bash
-# 准确率（对测试集评估）
 cd test
+
+# 拒识准确率
 python reject_client.py
 
-# QPS + 延迟（Locust 压测）
-pip install locust
-locust -f reject_benchmark.py --host http://127.0.0.1:8007 --headless -u 1000 -r 100 -t 60s
-```
-
-**实测结果**：
-
-| 指标 | 数值 |
-|:---|:---|
-| 拒识准确率 | 89.7% |
-| QPS | 377 |
-| P50 延迟 | 430ms |
-| P95 延迟 | 770ms |
-| 失败率 | 0% |
-
-### 2) 意图召回：TOP1/TOP5 准确率 + 槽位准确率
-
-```bash
-cd test
-
-# TOP1 / TOP5 准确率
+# 意图 TOP1 / TOP5 准确率
 python intent_client.py
 
 # 意图 + 槽位联合准确率
@@ -457,12 +401,13 @@ python nlu_client.py
 
 | 指标 | 数值 |
 |:---|:---|
-| TOP1 准确率 | 85.2% |
-| TOP5 准确率 | 97.6% |
-| 意图+槽位联合准确率（intent） | 83.2% |
-| 意图+槽位联合准确率（slots） | 57.2% |
+| 拒识准确率 | 89.7% |
+| 意图 TOP1 准确率 | 85.2% |
+| 意图 TOP5 准确率 | 97.6% |
+| 意图+槽位联合（intent） | 83.2% |
+| 意图+槽位联合（slots） | 57.2% |
 
-### 3) 多轮端到端准确率
+### 2) 端到端准确率
 
 ```bash
 # 生成多轮测试输出
@@ -476,30 +421,29 @@ python e2e_score.py
 
 **实测结果**：端到端准确率 88.6%
 
-### 4) QPS 压测（各服务）
+### 3) QPS 压测
 
 ```bash
 cd test
+pip install locust
 
-# 拒识服务（纯模型推理，可扛高并发）
-locust -f reject_benchmark.py  --host http://127.0.0.1:8007 --headless -u 1000 -r 100 -t 60s
-
-# 意图服务（纯模型推理，可扛高并发）
-locust -f intent_benchmark.py  --host http://127.0.0.1:8008 --headless -u 1000 -r 100 -t 60s
+# 拒识 / 意图服务（纯模型推理）
+locust -f reject_benchmark.py --host http://127.0.0.1:8007 --headless -u 1000 -r 100 -t 60s
+locust -f intent_benchmark.py --host http://127.0.0.1:8008 --headless -u 1000 -r 100 -t 60s
 
 # NLU 服务（含 LLM 调用，并发不宜过高）
-locust -f nlu_benchmark.py     --host http://127.0.0.1:8009 --headless -u 10 -r 5 -t 60s
+locust -f nlu_benchmark.py    --host http://127.0.0.1:8009 --headless -u 10  -r 5   -t 60s
 ```
 
-**实测结果**（1000 并发，60s）：
+**实测结果**：
 
-| 服务 | QPS | P50 延迟 | P95 延迟 | 失败率 |
-|:---:|:---:|:---:|:---:|:---:|
-| 拒识服务 | 377 | 430ms | 770ms | 0% |
-| 意图服务 | 145 | 660ms | — | 0% |
-| NLU 服务 | — | 1.3s | 4.3s | 0% |
+| 服务 | 并发 | QPS | P50 延迟 | P95 延迟 | 失败率 |
+|:---:|:---:|:---:|:---:|:---:|:---:|
+| 拒识服务 | 1000 | 377 | 430ms | 770ms | 0% |
+| 意图服务 | 1000 | 145 | 660ms | — | 0% |
+| NLU 服务 | 10 | — | 1.3s | 4.3s | 0% |
 
-### 5) 训练语料量
+### 4) 训练语料量
 
 ```bash
 wc -l train/data/reject/train.txt    # 拒识语料量
@@ -508,7 +452,7 @@ wc -l train/data/intent/train.txt    # 意图语料量
 
 **实测数据量**：拒识 32w 条，意图 31w 条。
 
-### 6) 训练指标（Precision / Recall / F1）
+### 5) 训练指标（Precision / Recall / F1）
 
 训练时自动输出，无需额外操作：
 
