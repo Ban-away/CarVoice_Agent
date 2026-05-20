@@ -96,9 +96,7 @@ def predict(query, trace_id):
         intent_rec = intent_recall(query, trace_id)
         results = intent_rec["data"].split(",")
         max_score = max([float(k) for k in intent_rec["score"].split(",")])
-        logger.info(f"top5：{intent_rec['data']}, cost: {time.time() - start}")
-        if str(results[0]) == "3" and max_score > MAX_CONF:
-            return "未知-无"
+        logger.info(f"top5：{intent_rec['data']}, scores: {intent_rec['score']}, cost: {time.time() - start}")
 
         now_tool = []
         for t in results:
