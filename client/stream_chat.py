@@ -74,7 +74,6 @@ def process_chat(response, query, sender_id):
         yield response
         return
     else:
-        counter = 1
         uttrance = ""
         answer = ""
         for r in response.iter_lines(chunk_size=1, decode_unicode=False, delimiter=b'\n'):
@@ -92,14 +91,12 @@ def process_chat(response, query, sender_id):
                 continue
             uttrance += text
             answer += text
-            if re.search('，|。|？|；', text):
+            if re.search('，|。|？|；|！|、|：', text):
                 yield uttrance
                 uttrance = ""
-                counter = 1
-            if counter % 5 == 0:
+            elif len(uttrance) >= 10:
                 yield uttrance
                 uttrance = ""
-            counter += 1
 
         if uttrance and uttrance != "  " and uttrance != " ":
             yield uttrance
