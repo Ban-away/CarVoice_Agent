@@ -36,7 +36,7 @@ def request_chat(query, sender_id, multiturn=True):
     else:
         history = []
     headers = {
-        "Authorization": API_KEY,
+        "Authorization": f"Bearer {API_KEY}",
         "Content-Type": "application/json"
     }
     messages_header = [

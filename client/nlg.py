@@ -18,7 +18,7 @@ def request_nlg(query, tool_response):
     try:
         headers = {
             "Content-Type": "application/json",
-            "Authorization": API_KEY
+            "Authorization": f"Bearer {API_KEY}"
         }
         messages = [
             {"role": "user", "content": NLG_PROMPT.format(query, tool_response)}

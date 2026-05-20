@@ -25,7 +25,7 @@ SYSTEM_PROMPT = prompts.ARBITRAION_SYSTEM_PROMPT
 def request_arbitration(query, sender_id):
     headers = {
         "Content-Type": "application/json",
-        "Authorization": API_KEY
+        "Authorization": f"Bearer {API_KEY}"
     }
     message = [{"role": "system", "content": SYSTEM_PROMPT}]
 
