@@ -4,6 +4,7 @@ load_dotenv()
 import json
 import uuid
 import random
+import asyncio
 import numpy as np
 import requests
 import base64
@@ -13,6 +14,7 @@ import prompts
 from slot_process import intent_slot
 from function import tools1
 from fastapi import FastAPI, Request
+from concurrent.futures import ThreadPoolExecutor
 from utils import logger
 from dm.factory import DMFactory
 
@@ -142,8 +144,9 @@ async def inference(request: Request):
     enable_dm = json_info.get("enable_dm", True)
     trace_id = json_info.get("trace_id", "1")
 
-    # 抽取意图和槽位
-    nlu = predict(query, trace_id)
+    # 抽取意图和槽位（同步predict放入线程池，避免阻塞事件循环）
+    loop = asyncio.get_event_loop()
+    nlu = await loop.run_in_executor(None, predict, query, trace_id)
 
 
     # NLU后处理
@@ -193,4 +196,4 @@ async def inference(request: Request):
 if __name__ == '__main__':
     import os
     port = int(os.environ['NLU_PORT'])
-    uvicorn.run(app, host='0.0.0.0', port=port, workers=1)
+    uvicorn.run(app, host='0.0.0.0', port=port, workers=4)
