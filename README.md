@@ -445,13 +445,21 @@ python test.py
 # 准确率（对测试集评估）
 cd test
 python reject_client.py
-# 输出: test avg acc: 0.92
 
 # QPS + 延迟（Locust 压测）
 pip install locust
 locust -f reject_benchmark.py --host http://127.0.0.1:8007 --headless -u 1000 -r 100 -t 60s
-# 输出: RPS, 平均响应时间, P50/P95/P99 延迟
 ```
+
+**实测结果**：
+
+| 指标 | 数值 |
+|:---|:---|
+| 拒识准确率 | 89.7% |
+| QPS | 377 |
+| P50 延迟 | 430ms |
+| P95 延迟 | 770ms |
+| 失败率 | 0% |
 
 ### 2) 意图召回：TOP1/TOP5 准确率 + 槽位准确率
 
@@ -460,12 +468,17 @@ cd test
 
 # TOP1 / TOP5 准确率
 python intent_client.py
-# 输出: test avg acc@1: 0.87, test avg acc@5: 0.97
 
 # 意图 + 槽位联合准确率
 python nlu_client.py
-# 输出: test intent acc: 0.87, slots acc: 0.91
 ```
+
+**实测结果**：
+
+| 指标 | 数值 |
+|:---|:---|
+| TOP1 准确率 | 85.2% |
+| TOP5 准确率 | 97.6% |
 
 ### 3) 多轮端到端准确率
 
@@ -477,8 +490,9 @@ python test.py
 
 # 统计端到端准确率
 python e2e_score.py
-# 输出: 端到端准确率：92.1%
 ```
+
+**实测结果**：端到端准确率 88.6%
 
 ### 4) QPS 压测（各服务）
 
@@ -495,7 +509,12 @@ locust -f intent_benchmark.py  --host http://127.0.0.1:8008 --headless -u 1000 -
 locust -f nlu_benchmark.py     --host http://127.0.0.1:8009 --headless -u 10 -r 5 -t 60s
 ```
 
-Locust 输出包含：总 RPS（QPS）、平均响应时间、P50/P95/P99 延迟、失败率。
+**实测结果**（1000 并发，60s）：
+
+| 服务 | QPS | P50 延迟 | P95 延迟 | 失败率 |
+|:---:|:---:|:---:|:---:|:---:|
+| 拒识服务 | 377 | 430ms | 770ms | 0% |
+| 意图服务 | 145 | 660ms | — | 0% |
 
 ### 5) 训练语料量
 
@@ -503,6 +522,8 @@ Locust 输出包含：总 RPS（QPS）、平均响应时间、P50/P95/P99 延迟
 wc -l train/data/reject/train.txt    # 拒识语料量
 wc -l train/data/intent/train.txt    # 意图语料量
 ```
+
+**实测数据量**：拒识 32w 条，意图 31w 条。
 
 ### 6) 训练指标（Precision / Recall / F1）
 
