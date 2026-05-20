@@ -36,7 +36,8 @@ if __name__ == '__main__':
     intent_wrong_slots_right = 0
     slot_error_detail = {}
 
-    for idx in tqdm(range(len(data)), ncols=80, mininterval=0.5):
+    pbar = tqdm(range(len(data)), ncols=80, mininterval=0.5)
+    for idx in pbar:
         line = data[idx]
         text, label, slots = line.strip().split("\t")
         response = get_completion(text)
@@ -44,7 +45,7 @@ if __name__ == '__main__':
             fail += 1
             total += 1
             if verbose:
-                print(f"[FAIL] {text}")
+                pbar.write(f"[FAIL] {text}")
             continue
         pred_slots = response["slots"]
         slots = json.loads(slots)
@@ -65,9 +66,9 @@ if __name__ == '__main__':
 
         if intent_ok and not slots_ok:
             if verbose:
-                print(f"[SLOT MISS] {text}")
-                print(f"  expected: {slots}")
-                print(f"  predicted: {pred_slots}")
+                pbar.write(f"[SLOT MISS] {text}")
+                pbar.write(f"  expected: {slots}")
+                pbar.write(f"  predicted: {pred_slots}")
             # 统计错误类型
             for k in set(list(slots.keys()) + list(pred_slots.keys())):
                 e_val = slots.get(k)
