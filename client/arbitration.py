@@ -1,6 +1,8 @@
 import time
 import json
 import os
+from dotenv import load_dotenv
+load_dotenv()
 import requests
 import prompts
 from utils import logger
@@ -25,7 +27,7 @@ SYSTEM_PROMPT = prompts.ARBITRAION_SYSTEM_PROMPT
 def request_arbitration(query, sender_id):
     headers = {
         "Content-Type": "application/json",
-        "Authorization": f"Bearer {API_KEY}"
+        "Authorization": API_KEY
     }
     message = [{"role": "system", "content": SYSTEM_PROMPT}]
 
@@ -61,10 +63,10 @@ def request_arbitration(query, sender_id):
             r = r.decode("utf-8")
             if not r:
                 continue
-            r = r.removeprefix("data: ")
+            r = r.lstrip("data: ")
             if r == "[DONE]":
                 break
-            r = json.loads(r)
+            r = json.loads(r.lstrip("data: "))
             text = r["choices"][0]["delta"]["content"]
             if not text:
                 continue
@@ -88,10 +90,7 @@ def request_arbitration(query, sender_id):
 
     except Exception as e:
         logger.info(f"Arbitration API error: {e}")
-        # 仲裁异常时默认走闲聊兜底，避免所有查询被任务流直接拒识
-        if not API_KEY:
-            logger.info("API_KEY not configured, defaulting to chat mode")
-        return "chat"
+        return "task"
 
 
 if __name__ == '__main__':
@@ -99,3 +98,4 @@ if __name__ == '__main__':
         query = input("输入:")
         res = request_arbitration(query, "131")
         print(res)
+

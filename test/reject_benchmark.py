@@ -4,6 +4,8 @@ locust -f reject_benchmark.py  --host http://127.0.0.1:8007  --headless -u 1000 
 """
 
 import os
+from dotenv import load_dotenv
+load_dotenv()
 import random
 import uuid
 from locust import HttpUser, task, between
@@ -18,7 +20,7 @@ class User(HttpUser):
     @task
     def task_post_archive(self):
         trace_id = f'cevi{uuid.uuid4().hex}'
-        port = os.environ.get('REJECT_PORT', '8007')
+        port = os.environ['REJECT_PORT']
         testServer = f'http://127.0.0.1:{port}'
         path = '/reject-server/v1'
         url = f'{testServer}{path}'

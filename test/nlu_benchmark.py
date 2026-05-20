@@ -4,6 +4,8 @@ locust -f nlu_benchmark.py  --host http://127.0.0.1:8009  --headless -u 10 -r 5 
 """
 
 import os
+from dotenv import load_dotenv
+load_dotenv()
 import random
 import uuid
 from locust import HttpUser, task, between
@@ -18,7 +20,7 @@ class User(HttpUser):
     @task
     def task_post_archive(self):
         trace_id = f'cevi{uuid.uuid4().hex}'
-        port = os.environ.get('NLU_PORT', '8009')
+        port = os.environ['NLU_PORT']
         testServer = f'http://127.0.0.1:{port}'
         path = '/chatnlu-server/v1'
         url = f'{testServer}{path}'

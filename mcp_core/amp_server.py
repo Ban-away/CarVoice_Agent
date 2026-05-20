@@ -1,11 +1,13 @@
 import os
+from dotenv import load_dotenv
+load_dotenv()
 from typing import Any, Dict, List, Optional
 import requests
 from mcp.server.fastmcp import FastMCP
 
 import os
 
-AMAP_MAPS_API_KEY = os.environ.get("AMAP_MAPS_API_KEY", "8281efdd7ef6d7d4c7a5dcd7916b57f0") 
+AMAP_MAPS_API_KEY = os.environ["AMAP_MAPS_API_KEY"]
 mcp = FastMCP("amap-maps")
 
 

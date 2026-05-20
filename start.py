@@ -1,5 +1,8 @@
-import json
+
 import os
+from dotenv import load_dotenv
+load_dotenv()
+import json
 import copy
 import traceback
 import time
@@ -118,7 +121,7 @@ def inference(req):
 
     nlu_template = {
         "query": query,
-        "trace_id": trace_id,
+        "tarce_id": trace_id,
         "intent": "",
         "intent_id": "",
         "function": "",
@@ -136,10 +139,7 @@ def inference(req):
             last_domain, last_query, last_reject, last_answer = last_info.split("#")
 
         # Query改写
-        try:
-            query = request_rewrite(query, last_answer, sender_id)
-        except Exception as e:
-            logger.error(f"Rewrite failed, using original query: {e}")
+        query = request_rewrite(query, last_answer, sender_id)
 
         # 调用nlu语义
         handler_nlu = thread_pool.submit(request_nlu, query, trace_id, enable_dm)
@@ -177,24 +177,23 @@ def inference(req):
                     broadcast=False
                 )
             else:
-                # NLU未匹配到技能，回退到闲聊兜底
-                logger.info(f"Query {query} NLU unmatched, falling back to chat.")
-                try:
-                    is_hit_chat, full_answer = handle_chat(handler_bot, nlu_template, ori_query, sender_id, begin)
-                    if is_hit_chat:
-                        redis_client.set(REDIS_KEY.format(sender_id), f"CHAT#{query}#1#{full_answer}", ex=TTL)
-                except Exception as e:
-                    logger.error(f"Chat fallback error: {e}")
-                    send_msg(nlu_result, "REJECT", prompts.DEFAULT_NLG, 1, time.time() - begin, status=-1)
+                send_msg(nlu_result, "REJECT", prompts.DEFAULT_NLG, 1, time.time() - begin, status=-1)
+                logger.info(f"Query {query} has been rejected.")
         else:
-            # 闲聊模式：直接调用闲聊服务，跳过拒识检查
-            try:
+            # 拒识
+            reject_result = handler_reject.result()
+            if reject_result == 0:
+                correlation_result = handler_correlation.result()
+                if correlation_result == "是":
+                    reject_result = 1 
+            if reject_result == 0:
+                send_msg(nlu_template, "REJECT", "", 1, time.time() - begin, status=-1)
+                logger.info(f"Query {query} has been rejected.")
+            else:
+                # 百科闲聊兜底
                 is_hit_chat, full_answer = handle_chat(handler_bot, nlu_template, ori_query, sender_id, begin)
                 if is_hit_chat:
-                    redis_client.set(REDIS_KEY.format(sender_id), f"CHAT#{query}#1#{full_answer}", ex=TTL)
-            except Exception as e:
-                logger.error(f"Chat processing error: {e}")
-                send_msg(nlu_template, "CHAT", "抱歉，我现在有点忙，稍后再聊吧", 1, time.time() - begin, status=2)
+                    redis_client.set(REDIS_KEY.format(sender_id), f"CHAT#{query}#{reject_result}#{full_answer}", ex=TTL)
 
     except Exception as e:
         logger.error(
@@ -208,5 +207,6 @@ if __name__ == "__main__":
         app,
         allow_unsafe_werkzeug=True,
         host='0.0.0.0',
-        port=os.getenv("FLASK_SERVER_PORT", 8080)
+        port=int(os.environ["ENTRY_PORT"])
     )
+

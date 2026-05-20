@@ -2,6 +2,8 @@ import json
 import requests
 import re
 import os
+from dotenv import load_dotenv
+load_dotenv()
 from utils import logger
 from typing import List
 
@@ -39,3 +41,4 @@ if __name__ == '__main__':
         query = input("Input:")
         res = request_reject(query, "123")
         print(res)
+

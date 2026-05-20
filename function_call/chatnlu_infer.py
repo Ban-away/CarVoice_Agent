@@ -1,4 +1,6 @@
 import os
+from dotenv import load_dotenv
+load_dotenv()
 import json
 import uuid
 import random
@@ -55,7 +57,7 @@ def send_messages(messages, tool_lst):
         "Content-Type": "application/json"
     }
     data = {
-        "model": "ep-20250106153928-kh8t7", # 要用能支持functioncall的模型，https://www.volcengine.com/docs/82379/1330310#98fee2f1，比如kimi-k2,deepseek-v3/v3.1
+        "model": os.environ["DOUBAO_MODEL_NAME"],
         "messages": messages,
         "tools": tool_lst,
         "temperature": 1e-6,
@@ -181,5 +183,5 @@ async def inference(request: Request):
 
 if __name__ == '__main__':
     import os
-    port = int(os.environ.get('NLU_PORT', 8009))
+    port = int(os.environ['NLU_PORT'])
     uvicorn.run(app, host='0.0.0.0', port=port, workers=1)

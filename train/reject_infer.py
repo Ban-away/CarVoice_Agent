@@ -1,4 +1,6 @@
 import os
+from dotenv import load_dotenv
+load_dotenv()
 import re
 import json
 import random
@@ -77,5 +79,5 @@ async def inference(request: Request):
 
 if __name__ == '__main__':
     import os
-    port = int(os.environ.get('REJECT_PORT', 8007))
+    port = int(os.environ['REJECT_PORT'])
     uvicorn.run(app, host='0.0.0.0', port=port, workers=1)

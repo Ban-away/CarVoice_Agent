@@ -2,6 +2,8 @@ import requests
 import json
 import time
 import os
+from dotenv import load_dotenv
+load_dotenv()
 from typing import Any
 import prompts
 from utils import logger
@@ -12,9 +14,9 @@ TIMEOUT = 2.0
 REDIS_KEY = "voice:last_service:{}"
 _redis_client = RedisClient() 
 
-API_KEY = os.environ["DOUBAO_API_KEY"]
-BASE_URL = os.environ["DOUBAO_BASE_URL"]
-MODEL_NAME = os.environ["DOUBAO_MODEL_NAME"]
+DOUBAO_API_KEY = os.environ["DOUBAO_API_KEY"]
+DOUBAO_BASE_URL = os.environ["DOUBAO_BASE_URL"]
+DOUBAO_MODEL_NAME = os.environ["DOUBAO_MODEL_NAME"]
 CORRELATION_SYSTEM = prompts.CORRELATION_SYSTEM
 CORRELATION_PROMPT = prompts.CORRELATION_PROMPT
 
@@ -35,7 +37,7 @@ def request_correlation(query, sender_id):
 
         headers = {
             "Content-Type": "application/json",
-            "Authorization": f"Bearer {API_KEY}"
+            "Authorization": DOUBAO_API_KEY
         }
         messages = [
             {"role": "system", "content": CORRELATION_SYSTEM},
@@ -43,12 +45,12 @@ def request_correlation(query, sender_id):
         ]
 
         body = dict(
-            model=MODEL_NAME,
+            model=DOUBAO_MODEL_NAME,
             messages=messages,
             temperature=0,
         )
         response = requests.post(
-            BASE_URL,
+            DOUBAO_BASE_URL,
             headers=headers,
             json=body,
             timeout=TIMEOUT
@@ -74,3 +76,4 @@ if __name__ == "__main__":
         query = input("输入：")
         res = request_correlation(query, sender_id)
         print(res)
+

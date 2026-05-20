@@ -1,4 +1,6 @@
 import os
+from dotenv import load_dotenv
+load_dotenv()
 import re
 import requests
 import json
@@ -10,8 +12,7 @@ import socketio
 
 
 # 从环境变量获取入口URL，支持动态端口配置
-entry_port = os.environ.get('ENTRY_PORT', '8080')
-URL = os.environ.get("ENTRY_URL", f"http://127.0.0.1:{entry_port}/request_nlu")
+URL = os.environ["ENTRY_URL"]
 
 sio = socketio.Client()
 

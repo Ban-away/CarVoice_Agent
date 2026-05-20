@@ -1,11 +1,13 @@
 import os
+from dotenv import load_dotenv
+load_dotenv()
 import requests
 import uuid
 import json
 from tqdm import tqdm
 
 
-URL = os.environ.get("INTENT_URL", "http://127.0.0.1:8008/intent-server/v1")
+URL = os.environ["INTENT_URL"]
 
 def get_completion(query):
     headers = {'Content-Type': 'application/json'}

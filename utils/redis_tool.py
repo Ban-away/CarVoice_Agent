@@ -1,12 +1,12 @@
+import os
+from dotenv import load_dotenv
+load_dotenv()
 import redis
 
- 
-import os
-
 class RedisDBConfig:
-    HOST = os.environ.get('REDIS_HOST', '127.0.0.1')
-    PORT = int(os.environ.get('REDIS_PORT', 6379))
-    DBID = int(os.environ.get('REDIS_DBID', 0))
+    HOST = os.environ['REDIS_HOST']
+    PORT = int(os.environ['REDIS_PORT'])
+    DBID = int(os.environ['REDIS_DBID'])
  
 def operator_status(func):
     '''get operatoration status

@@ -11,13 +11,15 @@ For example:
 
 import logging
 import os
+from dotenv import load_dotenv
+load_dotenv()
 import sys
 from logging import LoggerAdapter
 
 
 __all__ = []
 
-levelname = os.environ.get('LOG_LEVEL', "INFO")
+levelname = os.environ['LOG_LEVEL']
 
 _LEVEL_SET = {"DEBUG": 10, "INFO": 20, "WARN": 30, "ERROR": 40}
 _LOGGING_METHOD = ["info", "warning", "error", "debug"]

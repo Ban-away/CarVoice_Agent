@@ -2,15 +2,17 @@ import requests
 import json
 import time
 import os
+from dotenv import load_dotenv
+load_dotenv()
 from typing import Any
 import prompts
 from utils import logger
 
 
 TIMEOUT = 10.0
-API_KEY = os.environ["DOUBAO_API_KEY"]
-BASE_URL = os.environ["DOUBAO_BASE_URL"]
-MODEL_NAME = os.environ["DOUBAO_MODEL_NAME"]
+DOUBAO_API_KEY = os.environ["DOUBAO_API_KEY"]
+DOUBAO_BASE_URL = os.environ["DOUBAO_BASE_URL"]
+DOUBAO_MODEL_NAME = os.environ["DOUBAO_MODEL_NAME"]
 NLG_PROMPT = prompts.NLG_PROMPT
 
 
@@ -18,18 +20,18 @@ def request_nlg(query, tool_response):
     try:
         headers = {
             "Content-Type": "application/json",
-            "Authorization": f"Bearer {API_KEY}"
+            "Authorization": DOUBAO_API_KEY
         }
         messages = [
             {"role": "user", "content": NLG_PROMPT.format(query, tool_response)}
         ]
 
         body = dict(
-            model=MODEL_NAME,
+            model=DOUBAO_MODEL_NAME,
             messages=messages,
         )
         response = requests.post(
-            BASE_URL,
+            DOUBAO_BASE_URL,
             headers=headers,
             json=body,
             timeout=TIMEOUT
@@ -51,3 +53,4 @@ if __name__ == "__main__":
 
     res = request_nlg(query, tool_response)
     print(res)
+

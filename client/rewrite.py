@@ -1,4 +1,6 @@
 import os
+from dotenv import load_dotenv
+load_dotenv()
 import json
 import re
 import requests
@@ -9,9 +11,9 @@ from utils.redis_tool import RedisClient
 
 TTL = 40
 MAX_HISTORY = 6
-API_KEY = os.environ["DOUBAO_API_KEY"]
-BASE_URL = os.environ["DOUBAO_BASE_URL"]
-MODEL_NAME = os.environ["DOUBAO_MODEL_NAME"]
+DOUBAO_API_KEY = os.environ["DOUBAO_API_KEY"]
+DOUBAO_BASE_URL = os.environ["DOUBAO_BASE_URL"]
+DOUBAO_MODEL_NAME = os.environ["DOUBAO_MODEL_NAME"]
 REDIS_KEY = "voice:rewrite_history:{}"
 _redis_client = RedisClient() 
 
@@ -19,7 +21,7 @@ _redis_client = RedisClient()
 def request_rewrite(query, last_answer, sender_id):
 
     headers = {
-        "Authorization": f"Bearer {API_KEY}",
+        "Authorization": DOUBAO_API_KEY,
         "Content-Type": "application/json"
     }
     history = _redis_client.get(REDIS_KEY.format(sender_id))
@@ -62,25 +64,20 @@ def request_rewrite(query, last_answer, sender_id):
         messages = messages_header + messages_now
 
         data = {
-            "model": MODEL_NAME,
+            "model": DOUBAO_MODEL_NAME,
             "messages": messages,
             "temperature": 0.001,
             "top_p": 0,
         }
 
         response = requests.post(
-            BASE_URL,
+            DOUBAO_BASE_URL,
             headers=headers,
             data=json.dumps(data),
-            timeout=5
         )
         res = response.content.decode('utf-8')
         res = json.loads(res)
-        if response.status_code != 200 or 'choices' not in res:
-            logger.error(f"Rewrite API error: status={response.status_code}, body={res}")
-            result = "否"
-        else:
-            result = res['choices'][0]['message']['content']
+        result = res['choices'][0]['message']['content']
 
         # 防止误改
         if len(set(result).intersection(query)) < len(query) / 4:
