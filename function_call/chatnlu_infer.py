@@ -116,6 +116,12 @@ def predict(query, trace_id):
         logger.info(f"llm结果：{result}")
         logger.info(f"function调用时间:{time.time() - start_time}")
         if not result:
+            # LLM未返回tool_calls，使用BERT的top1预测
+            top_func = id2func.get(results[0])
+            top_name = func2name.get(top_func)
+            if top_func and top_func != "Unknown":
+                logger.info(f"LLM未匹配，回退BERT预测: {top_name}-{top_func}")
+                return f"{top_name}-无"
             return "未知-无"
 
         nlu = intent_slot(result, func2name, slot_map)
