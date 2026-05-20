@@ -9,6 +9,7 @@ import numpy as np
 import requests
 import base64
 import time
+import re
 import uvicorn
 import prompts
 from slot_process import intent_slot
@@ -93,27 +94,54 @@ def intent_recall(query, trace_id):
 
 
 def _extract_position(query):
-    # 优先检测复合位置：主驾+右后→主对角，副驾+左后→副对角
-    has_main = any(kw in query for kw in ["主驾", "主驾驶"])
-    has_vice = any(kw in query for kw in ["副驾", "副驾驶"])
-    has_right_rear = any(kw in query for kw in ["右后", "右下方", "右后方", "后排右", "右边后面"])
-    has_left_rear = any(kw in query for kw in ["左后", "左下方", "左后方", "后排左"])
-    if has_main and has_right_rear:
+    # 风向检测（吹脸/吹脚/吹窗）
+    has_blow = bool(re.search(r'朝着|对着|往.*吹|吹脸|吹脚|吹窗|吹.*风', query))
+    if has_blow:
+        face = bool(re.search(r'脸', query))
+        foot = bool(re.search(r'脚', query))
+        win = bool(re.search(r'窗', query)) and "车窗" not in query
+        if face and foot:
+            return "吹脸吹脚"
+        if win and foot:
+            return "吹窗吹脚"
+        if face:
+            return "吹脸"
+        if foot:
+            return "吹脚"
+        if win:
+            return "吹窗"
+
+    # 复合座位检测（需明确用连接词）
+    if re.search(r'(主驾|主驾驶).{0,3}(和|与|跟|还有|以及).{0,3}(右后|右下方|右后方|后排右)', query):
         return "主对角"
-    if has_vice and has_left_rear:
+    if re.search(r'(副驾|副驾驶).{0,3}(和|与|跟|还有|以及).{0,3}(左后|左下方|左后方|后排左)', query):
         return "副对角"
+    if re.search(r'(主驾|主驾驶).{0,3}(和|与|跟|还有|以及).{0,3}(副驾|副驾驶)', query):
+        return "主副驾"
 
     keywords = [
-        ("主驾后面", "左后"), ("副驾后面", "右后"),
+        # 复合位置变体（放在单条目之前）
+        ("主驾后面", "左后"), ("主驾后方", "左后"), ("主驾后头", "左后"), ("主驾后边", "左后"),
+        ("副驾后面", "右后"), ("副驾后方", "右后"), ("副驾后头", "右后"), ("副驾后边", "右后"),
+        ("后排左侧", "左后"), ("后排左边", "左后"), ("后排右侧", "右后"), ("后排右边", "右后"),
+        ("后面左侧", "左后"), ("后面右侧", "右后"), ("右边后面", "右后"),
+        ("后左", "左后"), ("后右", "右后"),
+        ("右下方", "右后"), ("左下方", "左后"),
         ("主副驾", "主副驾"), ("主副驾驶", "主副驾"),
+        # 单条目
         ("左后", "左后"), ("右后", "右后"),
-        ("主驾", "主驾"), ("副驾", "副驾"),
+        ("司机", "主驾"), ("驾驶位", "主驾"), ("左前", "主驾"),
+        ("主驾", "主驾"), ("主驾驶", "主驾"),
+        ("副驾", "副驾"), ("副驾驶", "副驾"), ("右前", "副驾"),
         ("前排", "前排"), ("后排", "后排"),
-        ("左侧", "左侧"), ("右侧", "右侧"),
-        ("所有的", "所有"), ("每一个", "所有"), ("所有", "所有"), ("每个", "所有"), ("全部", "所有"),
-        ("左边", "左侧"), ("右边", "右侧"),
+        ("前座椅", "前排"), ("前边", "前排"), ("第一排", "前排"),
+        ("左面", "左侧"), ("左方", "左侧"), ("左部", "左侧"), ("左侧", "左侧"), ("左边", "左侧"),
+        ("右面", "右侧"), ("右方", "右侧"), ("右部", "右侧"), ("右侧", "右侧"), ("右边", "右侧"),
+        # "所有" 相关
+        ("汽车里", "所有"), ("车里面", "所有"), ("车中", "所有"), ("车内", "所有"), ("车里", "所有"),
+        ("所有的", "所有"), ("每一个", "所有"), ("所有", "所有"), ("每个", "所有"),
+        ("全部", "所有"), ("全车", "所有"), ("全都", "所有"),
         ("前面", "前排"), ("后面", "后排"),
-        ("主驾驶", "主驾"), ("副驾驶", "副驾"),
     ]
     for kw, val in keywords:
         if kw in query:
@@ -122,11 +150,21 @@ def _extract_position(query):
 
 
 def _is_vague_degree(query):
+    # 如果 query 中有明确的数字（含中文数字组合如"十一点七"），说明不是模糊程度
+    if re.search(r'\d+', query):
+        return False
+    if re.search(r'十[一二三四五六七八九零]', query):
+        return False
     vague_patterns = [
-        "一点", "一些", "些", "小一点", "大一点", "少一点", "多一点",
+        "一点", "一些", "小一点", "大一点", "少一点", "多一点",
         "调低点", "调高点", "降低点", "升高点", "降点", "升点",
+        "小点", "大点",
         "稍微", "略微", "稍稍", "轻微", "些微",
         "再低", "再高", "再大", "再小", "再亮", "再暗",
+        "低些", "高些", "暗些", "亮些", "大些", "小些", "降些", "弱些",
+        "暗点", "调暗点", "调一调",
+        "别太用力", "别太大",
+        "降一降", "加重点", "减弱", "别那么大", "重一点", "轻点",
     ]
     return any(p in query for p in vague_patterns)
 
@@ -221,6 +259,13 @@ async def inference(request: Request):
     intent_id = name2id.get(intent)
     func_name = id2func.get(intent_id)
 
+    # 过滤 LLM 幻觉值
+    for k in list(slots.keys()):
+        if k == "位置" and slots[k] == "Unknown":
+            del slots[k]
+        elif k == "选项" and slots[k] == "1" and "第" not in query:
+            del slots[k]
+
     # 关键词兜底：补充 LLM 遗漏的槽位
     func_slot_def = slot_map.get(func_name)
     if isinstance(func_slot_def, dict):
@@ -229,13 +274,15 @@ async def inference(request: Request):
             pos = _extract_position(query)
             if pos:
                 slots["位置"] = pos
-        if "number" in expected_keys and "number" not in slots:
-            if _is_vague_degree(query):
-                slots["number"] = "1"
         if "Extreme" in expected_keys and "Extreme" not in slots:
             ext = _extract_extreme(query)
             if ext:
                 slots["Extreme"] = ext
+        # number 兜底：仅在无 Extreme 且函数非音量类时补充
+        if "number" in expected_keys and "number" not in slots and "Extreme" not in slots:
+            if func_name and "Sound_Volume" not in func_name:
+                if _is_vague_degree(query):
+                    slots["number"] = "1"
 
     response = {
         "query": query,

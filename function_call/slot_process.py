@@ -58,7 +58,7 @@ def intent_slot(function, map_intent, slot_map):
         dict_slot = slot_map.get(predict_e)
         if slots_predict:
             for key, value in slots_predict.items():
-                if value and isinstance(dict_slot, dict) and value not in ["不限", "无", "空", "none", "None"]:
+                if value and isinstance(dict_slot, dict) and value not in ["不限", "无", "空", "none", "None", "Unknown", "unknown"]:
                     key = dict_slot.get(key, key)
                     value = value_process(key, value)
                     slot_lst.append({key: value})
