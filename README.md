@@ -486,13 +486,11 @@ python run.py --model bert --data intent         # 输出 Precision/Recall/F1/Ac
 
 ## ⚠️ 已知限制
 
-| 限制 | 说明 | 建议 |
-|:---:|:---|:---|
-| 配置文件命名 | `config.ini` 内容是 shell 脚本而非标准 INI | 可重命名为 `.env` 或 `env.sh` |
-| 平台差异 | 一键脚本偏 Linux | Windows 推荐 Git Bash/WSL |
-| 外部依赖 | 豆包 API、Redis、高德 API 需可用 | 启动前先健康检查 |
-| 模型目录 | `train/pretrained/` 与 `train/saved/` 需提前准备 | 首次训练前先建目录并放入基座模型 |
-| E2E 评估 | 最终准确率依赖人工标注 | 建议建立统一标注规范 |
+| 限制 | 说明 |
+|:---:|:---|
+| 平台差异 | 一键脚本偏 Linux，Windows 需使用 Git Bash / WSL |
+| 外部依赖 | 豆包 API、Redis、高德 API 需可用 |
+| E2E 评估 | 端到端准确率依赖人工标注 |
 
 ---
 
