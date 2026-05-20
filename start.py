@@ -136,7 +136,10 @@ def inference(req):
             last_domain, last_query, last_reject, last_answer = last_info.split("#")
 
         # Query改写
-        query = request_rewrite(query, last_answer, sender_id)
+        try:
+            query = request_rewrite(query, last_answer, sender_id)
+        except Exception as e:
+            logger.error(f"Rewrite failed, using original query: {e}")
 
         # 调用nlu语义
         handler_nlu = thread_pool.submit(request_nlu, query, trace_id, enable_dm)

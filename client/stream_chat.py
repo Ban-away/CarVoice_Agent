@@ -57,8 +57,12 @@ def request_chat(query, sender_id, multiturn=True):
             CHAT_URL,
             headers=headers,
             data=json.dumps(data),
-            stream=True
+            stream=True,
+            timeout=TIMEOUT
         )
+        if response.status_code != 200:
+            logger.error(f"Bot Chat HTTP error: {response.status_code}, body: {response.text[:500]}")
+            return "N"
         return response
     except Exception as e:
         logger.error("Bot Chat error:" + str(e))
@@ -83,9 +87,14 @@ def process_chat(response, query, sender_id):
             if not r:
                 continue
             r = json.loads(r.removeprefix("data: "))
-            if r["choices"][0].get("finish_reason", {}) == "stop":
+            if "choices" not in r:
+                logger.error(f"Bot Chat unexpected response: {r}")
                 break
-            text = r["choices"][0]["delta"]["content"]
+            if r["choices"][0].get("finish_reason") == "stop":
+                break
+            text = r["choices"][0].get("delta", {}).get("content")
+            if not text:
+                continue
             uttrance += text
             answer += text
             if re.search('，|。|？|；', text):
