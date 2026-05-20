@@ -196,4 +196,4 @@ async def inference(request: Request):
 if __name__ == '__main__':
     import os
     port = int(os.environ['NLU_PORT'])
-    uvicorn.run(app, host='0.0.0.0', port=port, workers=4)
+    uvicorn.run("chatnlu_infer:app", host='0.0.0.0', port=port, workers=4)
