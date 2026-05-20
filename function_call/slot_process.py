@@ -2,6 +2,14 @@ import json
 
 
 def value_process(key, value):
+    # 仅做安全的值归一化：LLM 输出的明确变体
+    value_norm = {
+        "所有的": "所有",
+        "主驾驶": "主驾",
+        "副驾驶": "副驾",
+    }
+    value = value_norm.get(value, value)
+
     position_map = {
         "主驾": "MAIN",
         "副驾": "VICE",

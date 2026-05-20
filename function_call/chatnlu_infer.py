@@ -92,6 +92,57 @@ def intent_recall(query, trace_id):
     return response.json()
 
 
+def _extract_position(query):
+    # 优先检测复合位置：主驾+右后→主对角，副驾+左后→副对角
+    has_main = any(kw in query for kw in ["主驾", "主驾驶"])
+    has_vice = any(kw in query for kw in ["副驾", "副驾驶"])
+    has_right_rear = any(kw in query for kw in ["右后", "右下方", "右后方", "后排右", "右边后面"])
+    has_left_rear = any(kw in query for kw in ["左后", "左下方", "左后方", "后排左"])
+    if has_main and has_right_rear:
+        return "主对角"
+    if has_vice and has_left_rear:
+        return "副对角"
+
+    keywords = [
+        ("主驾后面", "左后"), ("副驾后面", "右后"),
+        ("主副驾", "主副驾"), ("主副驾驶", "主副驾"),
+        ("左后", "左后"), ("右后", "右后"),
+        ("主驾", "主驾"), ("副驾", "副驾"),
+        ("前排", "前排"), ("后排", "后排"),
+        ("左侧", "左侧"), ("右侧", "右侧"),
+        ("所有的", "所有"), ("每一个", "所有"), ("所有", "所有"), ("每个", "所有"), ("全部", "所有"),
+        ("左边", "左侧"), ("右边", "右侧"),
+        ("前面", "前排"), ("后面", "后排"),
+        ("主驾驶", "主驾"), ("副驾驶", "副驾"),
+    ]
+    for kw, val in keywords:
+        if kw in query:
+            return val
+    return None
+
+
+def _is_vague_degree(query):
+    vague_patterns = [
+        "一点", "一些", "些", "小一点", "大一点", "少一点", "多一点",
+        "调低点", "调高点", "降低点", "升高点", "降点", "升点",
+        "稍微", "略微", "稍稍", "轻微", "些微",
+        "再低", "再高", "再大", "再小", "再亮", "再暗",
+    ]
+    return any(p in query for p in vague_patterns)
+
+
+def _extract_extreme(query):
+    max_kw = ["最大", "最高", "最强", "最亮", "最热", "最足"]
+    min_kw = ["最小", "最低", "最弱", "最暗", "最冷"]
+    for kw in max_kw:
+        if kw in query:
+            return "最大"
+    for kw in min_kw:
+        if kw in query:
+            return "最小"
+    return None
+
+
 def predict(query, trace_id):
     try:
         start = time.time()
@@ -168,8 +219,23 @@ async def inference(request: Request):
     else:
         slots = {}
     intent_id = name2id.get(intent)
-    func_name = id2func.get(intent_id) 
+    func_name = id2func.get(intent_id)
 
+    # 关键词兜底：补充 LLM 遗漏的槽位
+    func_slot_def = slot_map.get(func_name)
+    if isinstance(func_slot_def, dict):
+        expected_keys = set(func_slot_def.values())
+        if "位置" in expected_keys and "位置" not in slots:
+            pos = _extract_position(query)
+            if pos:
+                slots["位置"] = pos
+        if "number" in expected_keys and "number" not in slots:
+            if _is_vague_degree(query):
+                slots["number"] = "1"
+        if "Extreme" in expected_keys and "Extreme" not in slots:
+            ext = _extract_extreme(query)
+            if ext:
+                slots["Extreme"] = ext
 
     response = {
         "query": query,
