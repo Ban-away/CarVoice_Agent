@@ -36,7 +36,7 @@ if __name__ == '__main__':
     intent_wrong_slots_right = 0
     slot_error_detail = {}
 
-    for idx in tqdm(range(len(data)), disable=verbose, ncols=80, mininterval=0.5):
+    for idx in tqdm(range(len(data)), ncols=80, mininterval=0.5):
         line = data[idx]
         text, label, slots = line.strip().split("\t")
         response = get_completion(text)
