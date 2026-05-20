@@ -96,17 +96,17 @@ def process_chat(response, query, sender_id):
             continue
         uttrance += text
         answer += text
-            if re.search('，|。|？|；', text):
-                yield uttrance
-                uttrance = ""
-                counter = 1
-            if counter % 5 == 0:
-                yield uttrance
-                uttrance = ""
-            counter += 1
-
-        if uttrance and uttrance != "  " and uttrance != " ":
+        if re.search('，|。|？|；', text):
             yield uttrance
+            uttrance = ""
+            counter = 1
+        if counter % 5 == 0:
+            yield uttrance
+            uttrance = ""
+        counter += 1
+
+    if uttrance and uttrance != "  " and uttrance != " ":
+        yield uttrance
 
         logger.info(f"bot_Chat Result: {answer}")
         history = _redis_client.get(REDIS_KEY.format(sender_id))
