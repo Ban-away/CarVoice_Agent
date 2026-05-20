@@ -885,7 +885,11 @@ tools1 = [
                     },
                     "Number": {
                         "type": "string",
+<<<<<<< HEAD
                         "description": "提取出小数、负数、正整数，不提取百分数和分数。若无则为空。注意：若输入含最字则提取Extreme而非Number"
+=======
+                        "description": "仅当输入中有明确的数字时才提取（如3、5.5、-2）。不提取模糊表述（如一点、小一点、大点、降一降、使劲、过高等）为数字。若输入含最字则提取Extreme而非Number。若无明确数字则为空"
+>>>>>>> ec058282b0ca272f2fb9c25899b0bfd5546947d0
                     },
                     "Ratio": {
                         "type": "string",
@@ -916,7 +920,11 @@ tools1 = [
                     },
                     "Number": {
                         "type": "string",
+<<<<<<< HEAD
                         "description": "提取出小数、负数、正整数，不提取百分数和分数。若无则为空。注意：若输入含最字则提取Extreme而非Number"
+=======
+                        "description": "仅当输入中有明确的数字时才提取（如3、5.5、-2）。不提取模糊表述（如一点、小一点、大点、降一降、使劲、过高等）为数字。若输入含最字则提取Extreme而非Number。若无明确数字则为空"
+>>>>>>> ec058282b0ca272f2fb9c25899b0bfd5546947d0
                     },
                     "Ratio": {
                         "type": "string",
@@ -947,7 +955,11 @@ tools1 = [
                     },
                     "Number": {
                         "type": "string",
+<<<<<<< HEAD
                         "description": "提取出小数、负数、正整数，不提取百分数和分数。若无则为空。注意：若输入含最字则提取Extreme而非Number"
+=======
+                        "description": "仅当输入中有明确的数字时才提取（如3、5.5、-2）。不提取模糊表述（如一点、小一点、大点、降一降、使劲、过高等）为数字。若输入含最字则提取Extreme而非Number。若无明确数字则为空"
+>>>>>>> ec058282b0ca272f2fb9c25899b0bfd5546947d0
                     },
                     "Ratio": {
                         "type": "string",
@@ -989,7 +1001,11 @@ tools1 = [
                     },
                     "Number": {
                         "type": "string",
+<<<<<<< HEAD
                         "description": "提取出小数、负数、正整数，不提取百分数和分数。若无则为空。注意：若输入含最字则提取Extreme而非Number"
+=======
+                        "description": "仅当输入中有明确的数字时才提取（如3、5.5、-2）。不提取模糊表述（如一点、小一点、大点、降一降、使劲、过高等）为数字。若输入含最字则提取Extreme而非Number。若无明确数字则为空"
+>>>>>>> ec058282b0ca272f2fb9c25899b0bfd5546947d0
                     },
                     "Ratio": {
                         "type": "string",
@@ -1181,7 +1197,11 @@ tools1 = [
                     },
                     "Number": {
                         "type": "string",
+<<<<<<< HEAD
                         "description": "提取出小数、负数、正整数，不提取百分数和分数。若无则为空。注意：若输入含最字则提取Extreme而非Number"
+=======
+                        "description": "仅当输入中有明确的数字时才提取（如3、5.5、-2）。不提取模糊表述（如一点、小一点、大点、降一降、使劲、过高等）为数字。若输入含最字则提取Extreme而非Number。若无明确数字则为空"
+>>>>>>> ec058282b0ca272f2fb9c25899b0bfd5546947d0
                     },
                     "Ratio": {
                         "type": "string",
@@ -1215,7 +1235,11 @@ tools1 = [
                     },
                     "Number": {
                         "type": "string",
+<<<<<<< HEAD
                         "description": "提取出小数、负数、正整数，不提取百分数和分数。若无则为空。注意：若输入含最字则提取Extreme而非Number"
+=======
+                        "description": "仅当输入中有明确的数字时才提取（如3、5.5、-2）。不提取模糊表述（如一点、小一点、大点、降一降、使劲、过高等）为数字。若输入含最字则提取Extreme而非Number。若无明确数字则为空"
+>>>>>>> ec058282b0ca272f2fb9c25899b0bfd5546947d0
                     },
                     "Ratio": {
                         "type": "string",
@@ -1462,7 +1486,11 @@ tools1 = [
                 "properties": {
                     "Number": {
                         "type": "string",
+<<<<<<< HEAD
                         "description": "提取出小数、负数、正整数，不提取百分数和分数。若无则为空。注意：若输入含最字则提取Extreme而非Number"
+=======
+                        "description": "仅当输入中有明确的数字时才提取（如3、5.5、-2）。不提取模糊表述（如一点、小一点、大点、降一降、使劲、过高等）为数字。若输入含最字则提取Extreme而非Number。若无明确数字则为空"
+>>>>>>> ec058282b0ca272f2fb9c25899b0bfd5546947d0
                     },
                     "Ratio": {
                         "type": "string",
@@ -1485,7 +1513,11 @@ tools1 = [
                 "properties": {
                     "Number": {
                         "type": "string",
+<<<<<<< HEAD
                         "description": "提取出小数、负数、正整数，不提取百分数和分数。若无则为空。注意：若输入含最字则提取Extreme而非Number"
+=======
+                        "description": "仅当输入中有明确的数字时才提取（如3、5.5、-2）。不提取模糊表述（如一点、小一点、大点、降一降、使劲、过高等）为数字。若输入含最字则提取Extreme而非Number。若无明确数字则为空"
+>>>>>>> ec058282b0ca272f2fb9c25899b0bfd5546947d0
                     },
                     "Ratio": {
                         "type": "string",
@@ -1508,7 +1540,11 @@ tools1 = [
                 "properties": {
                     "Number": {
                         "type": "string",
+<<<<<<< HEAD
                         "description": "提取出小数、负数、正整数，不提取百分数和分数。若无则为空。注意：若输入含最字则提取Extreme而非Number"
+=======
+                        "description": "仅当输入中有明确的数字时才提取（如3、5.5、-2）。不提取模糊表述（如一点、小一点、大点、降一降、使劲、过高等）为数字。若输入含最字则提取Extreme而非Number。若无明确数字则为空"
+>>>>>>> ec058282b0ca272f2fb9c25899b0bfd5546947d0
                     },
                     "Ratio": {
                         "type": "string",
@@ -1797,7 +1833,11 @@ tools1 = [
                     },
                     "Number": {
                         "type": "string",
+<<<<<<< HEAD
                         "description": "提取出小数、负数、正整数，不提取百分数和分数。若无则为空。注意：若输入含最字则提取Extreme而非Number"
+=======
+                        "description": "仅当输入中有明确的数字时才提取（如3、5.5、-2）。不提取模糊表述（如一点、小一点、大点、降一降、使劲、过高等）为数字。若输入含最字则提取Extreme而非Number。若无明确数字则为空"
+>>>>>>> ec058282b0ca272f2fb9c25899b0bfd5546947d0
                     },
                     "Ratio": {
                         "type": "string",
@@ -1828,7 +1868,11 @@ tools1 = [
                     },
                     "Number": {
                         "type": "string",
+<<<<<<< HEAD
                         "description": "提取出小数、负数、正整数，不提取百分数和分数。若无则为空。注意：若输入含最字则提取Extreme而非Number"
+=======
+                        "description": "仅当输入中有明确的数字时才提取（如3、5.5、-2）。不提取模糊表述（如一点、小一点、大点、降一降、使劲、过高等）为数字。若输入含最字则提取Extreme而非Number。若无明确数字则为空"
+>>>>>>> ec058282b0ca272f2fb9c25899b0bfd5546947d0
                     },
                     "Ratio": {
                         "type": "string",
@@ -1859,7 +1903,11 @@ tools1 = [
                     },
                     "Number": {
                         "type": "string",
+<<<<<<< HEAD
                         "description": "提取出小数、负数、正整数，不提取百分数和分数。若无则为空。注意：若输入含最字则提取Extreme而非Number"
+=======
+                        "description": "仅当输入中有明确的数字时才提取（如3、5.5、-2）。不提取模糊表述（如一点、小一点、大点、降一降、使劲、过高等）为数字。若输入含最字则提取Extreme而非Number。若无明确数字则为空"
+>>>>>>> ec058282b0ca272f2fb9c25899b0bfd5546947d0
                     },
                     "Ratio": {
                         "type": "string",
@@ -2080,7 +2128,11 @@ tools1 = [
                     },
                     "Number": {
                         "type": "string",
+<<<<<<< HEAD
                         "description": "提取出小数、负数、正整数，不提取百分数和分数。若无则为空。注意：若输入含最字则提取Extreme而非Number"
+=======
+                        "description": "仅当输入中有明确的数字时才提取（如3、5.5、-2）。不提取模糊表述（如一点、小一点、大点、降一降、使劲、过高等）为数字。若输入含最字则提取Extreme而非Number。若无明确数字则为空"
+>>>>>>> ec058282b0ca272f2fb9c25899b0bfd5546947d0
                     },
                     "Ratio": {
                         "type": "string",
@@ -2111,7 +2163,11 @@ tools1 = [
                     },
                     "Number": {
                         "type": "string",
+<<<<<<< HEAD
                         "description": "提取出小数、负数、正整数，不提取百分数和分数。若无则为空。注意：若输入含最字则提取Extreme而非Number"
+=======
+                        "description": "仅当输入中有明确的数字时才提取（如3、5.5、-2）。不提取模糊表述（如一点、小一点、大点、降一降、使劲、过高等）为数字。若输入含最字则提取Extreme而非Number。若无明确数字则为空"
+>>>>>>> ec058282b0ca272f2fb9c25899b0bfd5546947d0
                     },
                     "Ratio": {
                         "type": "string",
@@ -2164,7 +2220,11 @@ tools1 = [
                     },
                     "Number": {
                         "type": "string",
+<<<<<<< HEAD
                         "description": "提取出小数、负数、正整数，不提取百分数和分数。若无则为空。注意：若输入含最字则提取Extreme而非Number"
+=======
+                        "description": "仅当输入中有明确的数字时才提取（如3、5.5、-2）。不提取模糊表述（如一点、小一点、大点、降一降、使劲、过高等）为数字。若输入含最字则提取Extreme而非Number。若无明确数字则为空"
+>>>>>>> ec058282b0ca272f2fb9c25899b0bfd5546947d0
                     },
                     "Ratio": {
                         "type": "string",
@@ -2254,7 +2314,11 @@ tools1 = [
                     },
                     "Number": {
                         "type": "string",
+<<<<<<< HEAD
                         "description": "提取出小数、负数、正整数，不提取百分数和分数。若无则为空。注意：若输入含最字则提取Extreme而非Number"
+=======
+                        "description": "仅当输入中有明确的数字时才提取（如3、5.5、-2）。不提取模糊表述（如一点、小一点、大点、降一降、使劲、过高等）为数字。若输入含最字则提取Extreme而非Number。若无明确数字则为空"
+>>>>>>> ec058282b0ca272f2fb9c25899b0bfd5546947d0
                     },
                     "Ratio": {
                         "type": "string",
@@ -2285,7 +2349,11 @@ tools1 = [
                     },
                     "Number": {
                         "type": "string",
+<<<<<<< HEAD
                         "description": "提取出小数、负数、正整数，不提取百分数和分数。若无则为空。注意：若输入含最字则提取Extreme而非Number"
+=======
+                        "description": "仅当输入中有明确的数字时才提取（如3、5.5、-2）。不提取模糊表述（如一点、小一点、大点、降一降、使劲、过高等）为数字。若输入含最字则提取Extreme而非Number。若无明确数字则为空"
+>>>>>>> ec058282b0ca272f2fb9c25899b0bfd5546947d0
                     },
                     "Ratio": {
                         "type": "string",
@@ -2338,7 +2406,11 @@ tools1 = [
                     },
                     "Number": {
                         "type": "string",
+<<<<<<< HEAD
                         "description": "提取出小数、负数、正整数，不提取百分数和分数。若无则为空。注意：若输入含最字则提取Extreme而非Number"
+=======
+                        "description": "仅当输入中有明确的数字时才提取（如3、5.5、-2）。不提取模糊表述（如一点、小一点、大点、降一降、使劲、过高等）为数字。若输入含最字则提取Extreme而非Number。若无明确数字则为空"
+>>>>>>> ec058282b0ca272f2fb9c25899b0bfd5546947d0
                     },
                     "Ratio": {
                         "type": "string",
@@ -2387,7 +2459,11 @@ tools1 = [
                 "properties": {
                     "Number": {
                         "type": "string",
+<<<<<<< HEAD
                         "description": "提取出小数、负数、正整数，不提取百分数和分数。若无则为空。注意：若输入含最字则提取Extreme而非Number"
+=======
+                        "description": "仅当输入中有明确的数字时才提取（如3、5.5、-2）。不提取模糊表述（如一点、小一点、大点、降一降、使劲、过高等）为数字。若输入含最字则提取Extreme而非Number。若无明确数字则为空"
+>>>>>>> ec058282b0ca272f2fb9c25899b0bfd5546947d0
                     },
                     "Ratio": {
                         "type": "string",
@@ -2408,7 +2484,11 @@ tools1 = [
                 "properties": {
                     "Number": {
                         "type": "string",
+<<<<<<< HEAD
                         "description": "提取出小数、负数、正整数，不提取百分数和分数。若无则为空。注意：若输入含最字则提取Extreme而非Number"
+=======
+                        "description": "仅当输入中有明确的数字时才提取（如3、5.5、-2）。不提取模糊表述（如一点、小一点、大点、降一降、使劲、过高等）为数字。若输入含最字则提取Extreme而非Number。若无明确数字则为空"
+>>>>>>> ec058282b0ca272f2fb9c25899b0bfd5546947d0
                     },
                     "Ratio": {
                         "type": "string",
@@ -2429,7 +2509,11 @@ tools1 = [
                 "properties": {
                     "Number": {
                         "type": "string",
+<<<<<<< HEAD
                         "description": "提取出小数、负数、正整数，不提取百分数和分数。若无则为空。注意：若输入含最字则提取Extreme而非Number"
+=======
+                        "description": "仅当输入中有明确的数字时才提取（如3、5.5、-2）。不提取模糊表述（如一点、小一点、大点、降一降、使劲、过高等）为数字。若输入含最字则提取Extreme而非Number。若无明确数字则为空"
+>>>>>>> ec058282b0ca272f2fb9c25899b0bfd5546947d0
                     },
                     "Ratio": {
                         "type": "string",
@@ -5274,7 +5358,11 @@ tools1 = [
                 "properties": {
                     "Number": {
                         "type": "string",
+<<<<<<< HEAD
                         "description": "提取出小数、负数、正整数，不提取百分数和分数。若无则为空。注意：若输入含最字则提取Extreme而非Number"
+=======
+                        "description": "仅当输入中有明确的数字时才提取（如3、5.5、-2）。不提取模糊表述（如一点、小一点、大点、降一降、使劲、过高等）为数字。若输入含最字则提取Extreme而非Number。若无明确数字则为空"
+>>>>>>> ec058282b0ca272f2fb9c25899b0bfd5546947d0
                     },
                     "Ratio": {
                         "type": "string",
@@ -5295,7 +5383,11 @@ tools1 = [
                 "properties": {
                     "Number": {
                         "type": "string",
+<<<<<<< HEAD
                         "description": "提取出小数、负数、正整数，不提取百分数和分数。若无则为空。注意：若输入含最字则提取Extreme而非Number"
+=======
+                        "description": "仅当输入中有明确的数字时才提取（如3、5.5、-2）。不提取模糊表述（如一点、小一点、大点、降一降、使劲、过高等）为数字。若输入含最字则提取Extreme而非Number。若无明确数字则为空"
+>>>>>>> ec058282b0ca272f2fb9c25899b0bfd5546947d0
                     },
                     "Ratio": {
                         "type": "string",
@@ -5316,7 +5408,11 @@ tools1 = [
                 "properties": {
                     "Number": {
                         "type": "string",
+<<<<<<< HEAD
                         "description": "提取出小数、负数、正整数，不提取百分数和分数。若无则为空。注意：若输入含最字则提取Extreme而非Number"
+=======
+                        "description": "仅当输入中有明确的数字时才提取（如3、5.5、-2）。不提取模糊表述（如一点、小一点、大点、降一降、使劲、过高等）为数字。若输入含最字则提取Extreme而非Number。若无明确数字则为空"
+>>>>>>> ec058282b0ca272f2fb9c25899b0bfd5546947d0
                     },
                     "Ratio": {
                         "type": "string",
@@ -5398,7 +5494,11 @@ tools1 = [
                 "properties": {
                     "Number": {
                         "type": "string",
+<<<<<<< HEAD
                         "description": "提取出小数、负数、正整数，不提取百分数和分数。若无则为空。注意：若输入含最字则提取Extreme而非Number"
+=======
+                        "description": "仅当输入中有明确的数字时才提取（如3、5.5、-2）。不提取模糊表述（如一点、小一点、大点、降一降、使劲、过高等）为数字。若输入含最字则提取Extreme而非Number。若无明确数字则为空"
+>>>>>>> ec058282b0ca272f2fb9c25899b0bfd5546947d0
                     },
                     "Ratio": {
                         "type": "string",
@@ -5419,7 +5519,11 @@ tools1 = [
                 "properties": {
                     "Number": {
                         "type": "string",
+<<<<<<< HEAD
                         "description": "提取出小数、负数、正整数，不提取百分数和分数。若无则为空。注意：若输入含最字则提取Extreme而非Number"
+=======
+                        "description": "仅当输入中有明确的数字时才提取（如3、5.5、-2）。不提取模糊表述（如一点、小一点、大点、降一降、使劲、过高等）为数字。若输入含最字则提取Extreme而非Number。若无明确数字则为空"
+>>>>>>> ec058282b0ca272f2fb9c25899b0bfd5546947d0
                     },
                     "Ratio": {
                         "type": "string",
@@ -5440,7 +5544,11 @@ tools1 = [
                 "properties": {
                     "Number": {
                         "type": "string",
+<<<<<<< HEAD
                         "description": "提取出小数、负数、正整数，不提取百分数和分数。若无则为空。注意：若输入含最字则提取Extreme而非Number"
+=======
+                        "description": "仅当输入中有明确的数字时才提取（如3、5.5、-2）。不提取模糊表述（如一点、小一点、大点、降一降、使劲、过高等）为数字。若输入含最字则提取Extreme而非Number。若无明确数字则为空"
+>>>>>>> ec058282b0ca272f2fb9c25899b0bfd5546947d0
                     },
                     "Ratio": {
                         "type": "string",
@@ -5582,7 +5690,11 @@ tools1 = [
                     },
                     "Number": {
                         "type": "string",
+<<<<<<< HEAD
                         "description": "提取出小数、负数、正整数，不提取百分数和分数。若无则为空。注意：若输入含最字则提取Extreme而非Number"
+=======
+                        "description": "仅当输入中有明确的数字时才提取（如3、5.5、-2）。不提取模糊表述（如一点、小一点、大点、降一降、使劲、过高等）为数字。若输入含最字则提取Extreme而非Number。若无明确数字则为空"
+>>>>>>> ec058282b0ca272f2fb9c25899b0bfd5546947d0
                     },
                     "Ratio": {
                         "type": "string",
@@ -5608,7 +5720,11 @@ tools1 = [
                     },
                     "Number": {
                         "type": "string",
+<<<<<<< HEAD
                         "description": "提取出小数、负数、正整数，不提取百分数和分数。若无则为空。注意：若输入含最字则提取Extreme而非Number"
+=======
+                        "description": "仅当输入中有明确的数字时才提取（如3、5.5、-2）。不提取模糊表述（如一点、小一点、大点、降一降、使劲、过高等）为数字。若输入含最字则提取Extreme而非Number。若无明确数字则为空"
+>>>>>>> ec058282b0ca272f2fb9c25899b0bfd5546947d0
                     },
                     "Ratio": {
                         "type": "string",
@@ -5633,7 +5749,11 @@ tools1 = [
                     },
                     "Number": {
                         "type": "string",
+<<<<<<< HEAD
                         "description": "提取出小数、负数、正整数，不提取百分数和分数。若无则为空。注意：若输入含最字则提取Extreme而非Number"
+=======
+                        "description": "仅当输入中有明确的数字时才提取（如3、5.5、-2）。不提取模糊表述（如一点、小一点、大点、降一降、使劲、过高等）为数字。若输入含最字则提取Extreme而非Number。若无明确数字则为空"
+>>>>>>> ec058282b0ca272f2fb9c25899b0bfd5546947d0
                     },
                     "Ratio": {
                         "type": "string",
