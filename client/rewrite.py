@@ -9,9 +9,9 @@ from utils.redis_tool import RedisClient
 
 TTL = 40
 MAX_HISTORY = 6
-API_KEY = os.environ.get("API_KEY")
-DOUBAO_URL = os.environ.get("BASE_URL")
-REWRITE_MODEL = os.environ.get("REWRITE_MODEL")
+API_KEY = os.environ["DOUBAO_API_KEY"]
+BASE_URL = os.environ["DOUBAO_BASE_URL"]
+MODEL_NAME = os.environ["DOUBAO_MODEL_NAME"]
 REDIS_KEY = "voice:rewrite_history:{}"
 _redis_client = RedisClient() 
 
@@ -62,14 +62,14 @@ def request_rewrite(query, last_answer, sender_id):
         messages = messages_header + messages_now
 
         data = {
-            "model": REWRITE_MODEL, #doubao-pro 32k, deepseek-v3/v3.1
+            "model": MODEL_NAME,
             "messages": messages,
             "temperature": 0.001,
             "top_p": 0,
         }
 
         response = requests.post(
-            DOUBAO_URL,
+            BASE_URL,
             headers=headers,
             data=json.dumps(data),
             timeout=5

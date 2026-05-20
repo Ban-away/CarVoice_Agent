@@ -21,9 +21,9 @@ app = FastAPI()
 
 MAX_CONF = 0.98
 TIMEOUT = 5
-INTENT_URL = os.environ.get("INTENT_URL")
-API_KEY = os.environ.get("API_KEY")
-DOUBAO_URL = os.environ.get("BASE_URL")
+INTENT_URL = os.environ["INTENT_URL"]
+API_KEY = os.environ["DOUBAO_API_KEY"]
+BASE_URL = os.environ["DOUBAO_BASE_URL"]
 
 
 id2func = {}
@@ -63,7 +63,7 @@ def send_messages(messages, tool_lst):
     }
     try:
         response = requests.post(
-            DOUBAO_URL,
+            BASE_URL,
             headers=headers,
             data=json.dumps(data),
             timeout=TIMEOUT

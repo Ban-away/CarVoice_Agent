@@ -16,9 +16,9 @@ REDIS_KEY = "voice:arbitration_history:"
 _redis_client = RedisClient() 
 
 
-API_KEY = os.environ.get("API_KEY")
-ARBITRATION_URL = os.environ.get("ARBITRATION_URL")
-ARBITRATION_MODEL = os.environ.get("ARBITRATION_MODEL")
+API_KEY = os.environ["DOUBAO_API_KEY"]
+BASE_URL = os.environ["DOUBAO_BASE_URL"]
+MODEL_NAME = os.environ["DOUBAO_MODEL_NAME"]
 SYSTEM_PROMPT = prompts.ARBITRAION_SYSTEM_PROMPT
 
 
@@ -42,14 +42,14 @@ def request_arbitration(query, sender_id):
         message.extend(history)
 
         body = dict(
-            model=ARBITRATION_MODEL, #doubao-pro 32k, deepseek-v3/v3.1
+            model=MODEL_NAME,
             messages=message,
             max_tokens=MAX_TOKEN,
             temperature=0,
             stream=True
         )
         response = requests.post(
-            ARBITRATION_URL,
+            BASE_URL,
             headers=headers,
             json=body,
             stream=True,

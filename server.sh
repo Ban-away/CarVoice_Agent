@@ -190,11 +190,13 @@ check_service_by_port() {
 
 # 加载环境变量
 echo "加载环境变量..."
-if [ -f "$BASE_DIR/config/config.ini" ]; then
-    source "$BASE_DIR/config/config.ini"
+if [ -f "$BASE_DIR/.env" ]; then
+    set -a
+    source "$BASE_DIR/.env"
+    set +a
     echo "✅ 环境变量加载成功"
 else
-    echo "⚠️ 未找到 config/config.ini，使用系统环境变量"
+    echo "⚠️ 未找到 .env，使用系统环境变量"
 fi
 
 # 检查模型文件是否存在

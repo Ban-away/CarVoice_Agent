@@ -12,9 +12,9 @@ TIMEOUT = 2.0
 REDIS_KEY = "voice:last_service:{}"
 _redis_client = RedisClient() 
 
-API_KEY = os.environ.get("API_KEY")
-DOUBAO_URL = os.environ.get("BASE_URL")
-CORRELATION_MODEL = os.environ.get("CORRELATION_MODEL")
+API_KEY = os.environ["DOUBAO_API_KEY"]
+BASE_URL = os.environ["DOUBAO_BASE_URL"]
+MODEL_NAME = os.environ["DOUBAO_MODEL_NAME"]
 CORRELATION_SYSTEM = prompts.CORRELATION_SYSTEM
 CORRELATION_PROMPT = prompts.CORRELATION_PROMPT
 
@@ -43,12 +43,12 @@ def request_correlation(query, sender_id):
         ]
 
         body = dict(
-            model=CORRELATION_MODEL, # doubao-pro 32k, deepseek-v3/v3.1
+            model=MODEL_NAME,
             messages=messages,
             temperature=0,
         )
         response = requests.post(
-            DOUBAO_URL,
+            BASE_URL,
             headers=headers,
             json=body,
             timeout=TIMEOUT

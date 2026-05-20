@@ -15,18 +15,13 @@ REDIS_KEY = "voice:chat_history:{}"
 _redis_client = RedisClient() 
 
 
-API_KEY = os.environ.get("API_KEY")
-CHAT_URL = os.environ.get("CHAT_URL")
-CHAT_MODEL = os.environ.get("CHAT_MODEL")
+API_KEY = os.environ["DOUBAO_API_KEY"]
+BASE_URL = os.environ["DOUBAO_BASE_URL"]
+MODEL_NAME = os.environ["DOUBAO_MODEL_NAME"]
 SYSTEM_PROMPT = prompts.BOT_CHAT_SYSTEM_PROMPT
 
 
 def request_chat(query, sender_id, multiturn=True):
-    # 如果没有配置 API_KEY，直接返回错误
-    if not API_KEY:
-        logger.info("API_KEY not configured, returning mock response")
-        return "N"
-    
     if multiturn:
         history = _redis_client.get(REDIS_KEY.format(sender_id))
         if history:
@@ -48,13 +43,13 @@ def request_chat(query, sender_id, multiturn=True):
     messages = messages_header + history + messages_now
     logger.info(f'request message:{messages}')
     data = {
-        "model": CHAT_MODEL, # doubao-pro 32k, deepseek-v3/v3.1
+        "model": MODEL_NAME,
         "messages": messages,
         "stream": True
     }
     try:
         response = requests.post(
-            CHAT_URL,
+            BASE_URL,
             headers=headers,
             data=json.dumps(data),
             stream=True,

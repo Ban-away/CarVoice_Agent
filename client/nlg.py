@@ -8,9 +8,9 @@ from utils import logger
 
 
 TIMEOUT = 10.0
-API_KEY = os.environ.get("API_KEY")
-DOUBAO_URL = os.environ.get("BASE_URL")
-NLG_MODEL = os.environ.get("NLG_MODEL")
+API_KEY = os.environ["DOUBAO_API_KEY"]
+BASE_URL = os.environ["DOUBAO_BASE_URL"]
+MODEL_NAME = os.environ["DOUBAO_MODEL_NAME"]
 NLG_PROMPT = prompts.NLG_PROMPT
 
 
@@ -25,11 +25,11 @@ def request_nlg(query, tool_response):
         ]
 
         body = dict(
-            model=NLG_MODEL, #doubao-pro 32k, deepseek-v3/v3.1
+            model=MODEL_NAME,
             messages=messages,
         )
         response = requests.post(
-            DOUBAO_URL,
+            BASE_URL,
             headers=headers,
             json=body,
             timeout=TIMEOUT
