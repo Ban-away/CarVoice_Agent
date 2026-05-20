@@ -15,7 +15,7 @@ REDIS_KEY = "voice:chat_history:{}"
 _redis_client = RedisClient() 
 
 
-DOUBAO_API_KEY = os.environ.get("API_KEY")
+API_KEY = os.environ.get("API_KEY")
 CHAT_URL = os.environ.get("CHAT_URL")
 CHAT_MODEL = os.environ.get("CHAT_MODEL")
 SYSTEM_PROMPT = prompts.BOT_CHAT_SYSTEM_PROMPT
@@ -23,8 +23,8 @@ SYSTEM_PROMPT = prompts.BOT_CHAT_SYSTEM_PROMPT
 
 def request_chat(query, sender_id, multiturn=True):
     # 如果没有配置 API_KEY，直接返回错误
-    if not DOUBAO_API_KEY:
-        logger.info("DOUBAO_API_KEY not configured, returning mock response")
+    if not API_KEY:
+        logger.info("API_KEY not configured, returning mock response")
         return "N"
     
     if multiturn:
@@ -36,7 +36,7 @@ def request_chat(query, sender_id, multiturn=True):
     else:
         history = []
     headers = {
-        "Authorization": DOUBAO_API_KEY, 
+        "Authorization": API_KEY,
         "Content-Type": "application/json"
     }
     messages_header = [
@@ -58,7 +58,7 @@ def request_chat(query, sender_id, multiturn=True):
             headers=headers,
             data=json.dumps(data),
             stream=True,
-            timeout=TIMEOUT
+            timeout=REMIND_TIMEOUT
         )
         if response.status_code != 200:
             logger.error(f"Bot Chat HTTP error: {response.status_code}, body: {response.text[:500]}")

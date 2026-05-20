@@ -12,7 +12,7 @@ TIMEOUT = 2.0
 REDIS_KEY = "voice:last_service:{}"
 _redis_client = RedisClient() 
 
-DOUBAO_API_KEY = os.environ.get("API_KEY")
+API_KEY = os.environ.get("API_KEY")
 DOUBAO_URL = os.environ.get("BASE_URL")
 CORRELATION_MODEL = os.environ.get("CORRELATION_MODEL")
 CORRELATION_SYSTEM = prompts.CORRELATION_SYSTEM
@@ -35,7 +35,7 @@ def request_correlation(query, sender_id):
 
         headers = {
             "Content-Type": "application/json",
-            "Authorization": DOUBAO_API_KEY
+            "Authorization": API_KEY
         }
         messages = [
             {"role": "system", "content": CORRELATION_SYSTEM},

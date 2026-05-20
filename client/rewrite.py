@@ -9,7 +9,7 @@ from utils.redis_tool import RedisClient
 
 TTL = 40
 MAX_HISTORY = 6
-DOUBAO_API_KEY = os.environ.get("API_KEY")
+API_KEY = os.environ.get("API_KEY")
 DOUBAO_URL = os.environ.get("BASE_URL")
 REWRITE_MODEL = os.environ.get("REWRITE_MODEL")
 REDIS_KEY = "voice:rewrite_history:{}"
@@ -19,7 +19,7 @@ _redis_client = RedisClient()
 def request_rewrite(query, last_answer, sender_id):
 
     headers = {
-        "Authorization": DOUBAO_API_KEY,
+        "Authorization": API_KEY,
         "Content-Type": "application/json"
     }
     history = _redis_client.get(REDIS_KEY.format(sender_id))

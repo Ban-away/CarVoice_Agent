@@ -22,7 +22,7 @@ app = FastAPI()
 MAX_CONF = 0.98
 TIMEOUT = 5
 INTENT_URL = os.environ.get("INTENT_URL")
-DOUBAO_API_KEY = os.environ.get("API_KEY")
+API_KEY = os.environ.get("API_KEY")
 DOUBAO_URL = os.environ.get("BASE_URL")
 
 
@@ -51,7 +51,7 @@ with open("../config/slot_intent.json", "r", encoding="utf-8") as slotfile:
 
 def send_messages(messages, tool_lst):
     headers = {
-        "Authorization": DOUBAO_API_KEY,
+        "Authorization": API_KEY,
         "Content-Type": "application/json"
     }
     data = {

@@ -8,7 +8,7 @@ from utils import logger
 
 
 TIMEOUT = 10.0
-DOUBAO_API_KEY = os.environ.get("API_KEY")
+API_KEY = os.environ.get("API_KEY")
 DOUBAO_URL = os.environ.get("BASE_URL")
 NLG_MODEL = os.environ.get("NLG_MODEL")
 NLG_PROMPT = prompts.NLG_PROMPT
@@ -18,7 +18,7 @@ def request_nlg(query, tool_response):
     try:
         headers = {
             "Content-Type": "application/json",
-            "Authorization": DOUBAO_API_KEY
+            "Authorization": API_KEY
         }
         messages = [
             {"role": "user", "content": NLG_PROMPT.format(query, tool_response)}
