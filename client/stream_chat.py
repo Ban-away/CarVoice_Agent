@@ -54,8 +54,12 @@ def request_chat(query, sender_id, multiturn=True):
             DOUBAO_BASE_URL,
             headers=headers,
             data=json.dumps(data),
-            stream=True
+            stream=True,
+            timeout=REMIND_TIMEOUT
         )
+        if response.status_code != 200:
+            logger.error(f"Chat API error: status={response.status_code}")
+            return "N"
         return response
     except Exception as e:
         logger.error("Bot Chat error:" + str(e))
@@ -64,25 +68,34 @@ def request_chat(query, sender_id, multiturn=True):
 
 def process_chat(response, query, sender_id):
     if response is None:
-        response = "抱歉，此为敏感信息，请您换个问题"
-        yield response
+        yield "抱歉，此为敏感信息，请您换个问题"
+        return
     if response == "N":
-        response = "抱歉，网络有点问题，请您再试一下"
-        yield response
-    else:
-        counter = 1
-        uttrance = ""
-        answer = ""
-        for r in response.iter_lines(chunk_size=1, decode_unicode=False, delimiter=b'\n'):
-            r = r.decode("utf-8").strip()
-            if not r:
-                continue
-            r = json.loads(r.lstrip("data: "))
-            if r["choices"][0].get("finish_reason", {}) == "stop":
-                break
-            text = r["choices"][0]["delta"]["content"]
-            uttrance += text
-            answer += text
+        yield "抱歉，网络有点问题，请您再试一下"
+        return
+    counter = 1
+    uttrance = ""
+    answer = ""
+    for r in response.iter_lines(chunk_size=1, decode_unicode=False, delimiter=b'\n'):
+        r = r.decode("utf-8").strip()
+        if not r:
+            continue
+        r = r.removeprefix("data: ")
+        if r == "[DONE]":
+            break
+        try:
+            r = json.loads(r)
+        except json.JSONDecodeError:
+            continue
+        if "choices" not in r:
+            continue
+        if r["choices"][0].get("finish_reason") == "stop":
+            break
+        text = r["choices"][0].get("delta", {}).get("content")
+        if not text:
+            continue
+        uttrance += text
+        answer += text
             if re.search('，|。|？|；', text):
                 yield uttrance
                 uttrance = ""

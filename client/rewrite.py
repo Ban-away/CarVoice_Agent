@@ -74,10 +74,18 @@ def request_rewrite(query, last_answer, sender_id):
             DOUBAO_BASE_URL,
             headers=headers,
             data=json.dumps(data),
+            timeout=5,
         )
-        res = response.content.decode('utf-8')
-        res = json.loads(res)
-        result = res['choices'][0]['message']['content']
+        if response.status_code != 200:
+            logger.error(f"Rewrite API error: status={response.status_code}, body={response.text[:200]}")
+            result = "否"
+        else:
+            res = response.json()
+            if "choices" not in res:
+                logger.error(f"Rewrite API no choices: {json.dumps(res, ensure_ascii=False)[:200]}")
+                result = "否"
+            else:
+                result = res['choices'][0]['message']['content']
 
         # 防止误改
         if len(set(result).intersection(query)) < len(query) / 4:

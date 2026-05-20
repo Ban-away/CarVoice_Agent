@@ -60,14 +60,19 @@ def request_arbitration(query, sender_id):
         text = "A"
         for r in response.iter_lines(
                 chunk_size=CHUNK_SIZE, decode_unicode=False, delimiter=b'\n'):
-            r = r.decode("utf-8")
+            r = r.decode("utf-8").strip()
             if not r:
                 continue
-            r = r.lstrip("data: ")
+            r = r.removeprefix("data: ")
             if r == "[DONE]":
                 break
-            r = json.loads(r.lstrip("data: "))
-            text = r["choices"][0]["delta"]["content"]
+            try:
+                r = json.loads(r)
+            except json.JSONDecodeError:
+                continue
+            if "choices" not in r:
+                continue
+            text = r["choices"][0].get("delta", {}).get("content")
             if not text:
                 continue
             break

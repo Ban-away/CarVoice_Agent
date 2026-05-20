@@ -36,7 +36,13 @@ def request_nlg(query, tool_response):
             json=body,
             timeout=TIMEOUT
         )
+        if response.status_code != 200:
+            logger.error(f"NLG API error: status={response.status_code}")
+            return ""
         response = response.json()
+        if "choices" not in response:
+            logger.error(f"NLG API no choices: {json.dumps(response, ensure_ascii=False)[:200]}")
+            return ""
         answer = response["choices"][0]["message"]["content"]
         logger.info(f"NLG结果: {answer}")
         return answer

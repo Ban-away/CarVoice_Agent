@@ -53,7 +53,7 @@ with open("../config/slot_intent.json", "r", encoding="utf-8") as slotfile:
 
 def send_messages(messages, tool_lst):
     headers = {
-        "Authorization": f"Bearer {API_KEY}",
+        "Authorization": API_KEY,
         "Content-Type": "application/json"
     }
     data = {
@@ -70,8 +70,13 @@ def send_messages(messages, tool_lst):
             data=json.dumps(data),
             timeout=TIMEOUT
         )
-        res = response.content.decode('utf-8')
-        res = json.loads(res)
+        if response.status_code != 200:
+            logger.error(f"NLU API error: status={response.status_code}, body={response.text[:200]}")
+            return None
+        res = response.json()
+        if "choices" not in res:
+            logger.error(f"NLU API no choices: {json.dumps(res, ensure_ascii=False)[:200]}")
+            return None
         return res['choices'][0]['message']['tool_calls']
     except Exception as e:
         logger.error(f"Doubao error: {e}")

@@ -55,7 +55,13 @@ def request_correlation(query, sender_id):
             json=body,
             timeout=TIMEOUT
         )
+        if response.status_code != 200:
+            logger.error(f"Correlation API error: status={response.status_code}")
+            return "否"
         response = response.json()
+        if "choices" not in response:
+            logger.error(f"Correlation API no choices: {json.dumps(response, ensure_ascii=False)[:200]}")
+            return "否"
         answer = response["choices"][0]["message"]["content"]
         if answer and len(answer) > 0:
             answer = answer[0]
