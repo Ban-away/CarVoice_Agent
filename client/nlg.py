@@ -20,7 +20,7 @@ def request_nlg(query, tool_response):
     try:
         headers = {
             "Content-Type": "application/json",
-            "Authorization": DOUBAO_API_KEY
+            "Authorization": f"Bearer {DOUBAO_API_KEY}"
         }
         messages = [
             {"role": "user", "content": NLG_PROMPT.format(query, tool_response)}

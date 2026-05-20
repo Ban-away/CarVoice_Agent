@@ -37,7 +37,7 @@ def request_correlation(query, sender_id):
 
         headers = {
             "Content-Type": "application/json",
-            "Authorization": DOUBAO_API_KEY
+            "Authorization": f"Bearer {DOUBAO_API_KEY}"
         }
         messages = [
             {"role": "system", "content": CORRELATION_SYSTEM},

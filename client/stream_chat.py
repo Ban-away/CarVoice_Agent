@@ -33,7 +33,7 @@ def request_chat(query, sender_id, multiturn=True):
     else:
         history = []
     headers = {
-        "Authorization": DOUBAO_API_KEY, 
+        "Authorization": f"Bearer {DOUBAO_API_KEY}",
         "Content-Type": "application/json"
     }
     messages_header = [

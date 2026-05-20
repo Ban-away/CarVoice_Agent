@@ -21,7 +21,7 @@ _redis_client = RedisClient()
 def request_rewrite(query, last_answer, sender_id):
 
     headers = {
-        "Authorization": DOUBAO_API_KEY,
+        "Authorization": f"Bearer {DOUBAO_API_KEY}",
         "Content-Type": "application/json"
     }
     history = _redis_client.get(REDIS_KEY.format(sender_id))

@@ -53,7 +53,7 @@ with open("../config/slot_intent.json", "r", encoding="utf-8") as slotfile:
 
 def send_messages(messages, tool_lst):
     headers = {
-        "Authorization": API_KEY,
+        "Authorization": f"Bearer {API_KEY}",
         "Content-Type": "application/json"
     }
     data = {
