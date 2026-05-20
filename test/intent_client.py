@@ -17,7 +17,8 @@ def get_completion(query):
 
 if __name__ == '__main__':
     fd = open("../train/data/intent/test.txt")
-    right = 0
+    right1 = 0
+    right5 = 0
     total = 0
     data = fd.readlines()
     for index in tqdm(range(len(data))):
@@ -27,6 +28,9 @@ if __name__ == '__main__':
         response = get_completion(text)
         # print(text, response)
         if int(response["data"].split(",")[0]) == label:
-            right += 1
+            right1 += 1
+        if label in [int(x) for x in response["data"].split(",")[:5]]:
+            right5 += 1
         total += 1
-    print("test avg acc@1:", right/total)
+    print("test avg acc@1:", right1/total)
+    print("test avg acc@5:", right5/total)
