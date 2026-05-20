@@ -319,26 +319,6 @@ cd ..
 - `train/saved/intent/bert.ckpt`
 - `train/saved/reject/bert_tiny.ckpt`
 
-#### 训练结果示例
-
-**意图识别模型（bert-large）训练结果**：
-| 指标 | 数值 |
-|:---|:---|
-| Accuracy | 85.19% |
-| Accuracy@3 | 96.59% |
-| Accuracy@5 | 97.62% |
-| Precision | 88.88% |
-| Recall | 84.60% |
-| F1 | 84.24% |
-
-**拒识模型（bert-tiny）训练结果**：
-| 指标 | 数值 |
-|:---|:---|
-| Accuracy | 89.71% |
-| Precision | 89.65% |
-| Recall | 89.74% |
-| F1 | 89.69% |
-
 ### 5) 启动服务
 
 #### 停止服务
@@ -479,6 +459,8 @@ python nlu_client.py
 |:---|:---|
 | TOP1 准确率 | 85.2% |
 | TOP5 准确率 | 97.6% |
+| 意图+槽位联合准确率（intent） | 83.2% |
+| 意图+槽位联合准确率（slots） | 57.2% |
 
 ### 3) 多轮端到端准确率
 
@@ -515,6 +497,7 @@ locust -f nlu_benchmark.py     --host http://127.0.0.1:8009 --headless -u 10 -r 
 |:---:|:---:|:---:|:---:|:---:|
 | 拒识服务 | 377 | 430ms | 770ms | 0% |
 | 意图服务 | 145 | 660ms | — | 0% |
+| NLU 服务 | — | 1.3s | 4.3s | 0% |
 
 ### 5) 训练语料量
 
@@ -534,6 +517,26 @@ cd train
 python run.py --model bert_tiny --data reject   # 输出 Precision/Recall/F1/Accuracy
 python run.py --model bert --data intent         # 输出 Precision/Recall/F1/Accuracy/Acc@3/Acc@5
 ```
+
+**意图识别模型（bert-large）训练结果**：
+
+| 指标 | 数值 |
+|:---:|:---:|
+| Accuracy | 85.19% |
+| Accuracy@3 | 96.59% |
+| Accuracy@5 | 97.62% |
+| Precision | 88.88% |
+| Recall | 84.60% |
+| F1 | 84.24% |
+
+**拒识模型（bert-tiny）训练结果**：
+
+| 指标 | 数值 |
+|:---:|:---:|
+| Accuracy | 89.71% |
+| Precision | 89.65% |
+| Recall | 89.74% |
+| F1 | 89.69% |
 
 ---
 

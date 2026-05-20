@@ -23,11 +23,9 @@ def value_process(key, value):
         "右前": "VICE",
         "主副驾": "FRONT"
     }
-    if key in ["NUMBER", "RATIO"]:
+    if key in ["ratio"]:
         if '%' in value:
-            value = float(eval(value.replace('%', '')) / 100)
-        else:
-            value = float(eval(value))
+            value = str(float(value.replace('%', '')) / 100)
     elif key in ["POSITION"]:
         value = position_map.get(value, value)
     elif key == "对话时长":
@@ -52,7 +50,7 @@ def intent_slot(function, map_intent, slot_map):
         dict_slot = slot_map.get(predict_e)
         if slots_predict:
             for key, value in slots_predict.items():
-                if value and isinstance(dict_slot, dict) and value != "不限":
+                if value and isinstance(dict_slot, dict) and value not in ["不限", "无", "空", "none", "None"]:
                     key = dict_slot.get(key, key)
                     value = value_process(key, value)
                     slot_lst.append({key: value})
