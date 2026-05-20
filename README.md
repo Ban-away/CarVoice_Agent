@@ -437,46 +437,82 @@ python test.py
 
 ## 📊 评测与性能测试
 
-### 1) 端到端评测
+> 评测前需确保所有服务已启动，且 `train/saved/intent/bert.ckpt` 和 `train/saved/reject/bert_tiny.ckpt` 已存在。
+
+### 1) 拒识模型：准确率 + QPS + 延迟
 
 ```bash
-# 生成端到端输出
+# 准确率（对测试集评估）
+cd test
+python reject_client.py
+# 输出: test avg acc: 0.92
+
+# QPS + 延迟（Locust 压测）
+pip install locust
+locust -f reject_benchmark.py --host http://127.0.0.1:8007 --headless -u 1000 -r 100 -t 60s
+# 输出: RPS, 平均响应时间, P50/P95/P99 延迟
+```
+
+### 2) 意图召回：TOP1/TOP5 准确率 + 槽位准确率
+
+```bash
+cd test
+
+# TOP1 / TOP5 准确率
+python intent_client.py
+# 输出: test avg acc@1: 0.87, test avg acc@5: 0.97
+
+# 意图 + 槽位联合准确率
+python nlu_client.py
+# 输出: test intent acc: 0.87, slots acc: 0.91
+```
+
+### 3) 多轮端到端准确率
+
+```bash
+# 生成多轮测试输出
 python test.py
 
-# 统计人工标注准确率
+# 人工标注 test/result/multi_test_output.txt（每条标 1=对 / 0=错），保存为 multi_test_output_labeled.txt
+
+# 统计端到端准确率
 python e2e_score.py
+# 输出: 端到端准确率：92.1%
 ```
 
-`e2e_score.py` 会读取 `test/result/multi_test_output_labeled.txt`，按首列标注统计端到端准确率。
-
-> 评测前需确保 `train/saved/intent/bert.ckpt` 和 `train/saved/reject/bert_tiny.ckpt` 已存在。
-
-### 2) 性能测试（Locust）
-
-使用 Locust 进行服务性能压测：
+### 4) QPS 压测（各服务）
 
 ```bash
-# 安装 Locust
-pip install locust
-
-# NLU 服务压测（端口 8009）
 cd test
-locust -f nlu_benchmark.py --host http://127.0.0.1:8009 --headless -u 10 -r 5 -t 60s
 
-# 意图服务压测（端口 8008）
-locust -f intent_benchmark.py --host http://127.0.0.1:8008 --headless -u 10 -r 5 -t 60s
+# 拒识服务（纯模型推理，可扛高并发）
+locust -f reject_benchmark.py  --host http://127.0.0.1:8007 --headless -u 1000 -r 100 -t 60s
 
-# 拒识服务压测（端口 8007）
-locust -f reject_benchmark.py --host http://127.0.0.1:8007 --headless -u 10 -r 5 -t 60s
+# 意图服务（纯模型推理，可扛高并发）
+locust -f intent_benchmark.py  --host http://127.0.0.1:8008 --headless -u 1000 -r 100 -t 60s
+
+# NLU 服务（含 LLM 调用，并发不宜过高）
+locust -f nlu_benchmark.py     --host http://127.0.0.1:8009 --headless -u 10 -r 5 -t 60s
 ```
 
-**参数说明**：
-| 参数 | 含义 |
-|:---|:---|
-| `-u 10` | 并发用户数 |
-| `-r 5` | 每秒新增用户数 |
-| `-t 60s` | 测试时长 |
-| `--headless` | 无界面模式 |
+Locust 输出包含：总 RPS（QPS）、平均响应时间、P50/P95/P99 延迟、失败率。
+
+### 5) 训练语料量
+
+```bash
+wc -l train/data/reject/train.txt    # 拒识语料量
+wc -l train/data/intent/train.txt    # 意图语料量
+```
+
+### 6) 训练指标（Precision / Recall / F1）
+
+训练时自动输出，无需额外操作：
+
+```bash
+cd train
+python run.py --model bert_tiny --data reject   # 输出 Precision/Recall/F1/Accuracy
+python run.py --model bert --data intent         # 输出 Precision/Recall/F1/Accuracy/Acc@3/Acc@5
+```
 
 ---
 
