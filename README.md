@@ -13,18 +13,18 @@
 
 ## 📑 目录
 
-- [🔧 技术与模块](#技术与模块)
-- [📦 项目结构](#项目结构)
-- [🔄 端到端链路](#端到端链路)
-- [🧠 数据与模型目录说明](#数据与模型目录说明)
-- [⚙️ 配置要点](#配置要点)
-- [⚡ 快速运行](#快速运行)
-- [📊 评测与性能测试](#评测与性能测试)
-- [⚠️ 已知限制](#已知限制)
+- [技术与模块](#技术与模块)
+- [项目结构](#项目结构)
+- [端到端链路](#端到端链路)
+- [数据与模型目录说明](#数据与模型目录说明)
+- [配置要点](#配置要点)
+- [快速运行](#快速运行)
+- [评测与性能测试](#评测与性能测试)
+- [已知限制](#已知限制)
 
 ---
 
-## 🔧 技术与模块
+## 技术与模块
 
 ### 📋 技术栈概览
 
@@ -82,7 +82,7 @@ MCP 工具服务（高德地图、音乐检索等）
 
 ---
 
-## 📦 项目结构
+## 项目结构
 
 ```text
 CarVoice_Agent/
@@ -124,7 +124,7 @@ CarVoice_Agent/
 │  │  ├─ intent/                 # 意图数据（train/dev/test/class）
 │  │  └─ reject/                 # 拒识数据（train/dev/test/class）
 │  ├─ models/
-│  │  ├─ bert.py                  # 意图识别模型（bert-large，平衡精度与效率）
+│  │  ├─ bert.py                  # 意图识别模型（RoBERTa-wwm-ext，平衡精度与效率）
 │  │  └─ bert_tiny.py             # 拒识模型（3层BERT，极致效率，小模型大数据）
 │  ├─ pretrained/                # 预训练模型目录
 │  │  ├─ chinese_roberta_wwm_ext/
@@ -168,7 +168,7 @@ CarVoice_Agent/
 
 ---
 
-## 🔄 端到端链路
+## 端到端链路
 
 ### 🗺️ 在线推理主流程
 
@@ -202,7 +202,7 @@ start.py (SocketIO 入口)
 
 ---
 
-## 🧠 数据与模型目录说明
+## 数据与模型目录说明
 
 ### 📂 数据集位置
 
@@ -233,7 +233,7 @@ start.py (SocketIO 入口)
 
 ---
 
-## ⚙️ 配置要点
+## 配置要点
 
 ### 1) Redis（自动启动）
 
@@ -248,7 +248,19 @@ Redis 用于会话历史和状态缓存：
 - 闲聊历史：`voice:chat_history:*`
 - 最近服务状态：`voice:last_service:*`
 
-### 2) 目录准备
+### 2) NLU 服务 API 配置
+
+NLU 服务使用独立的豆包 API 配置（与其他服务的通用 API Key 分离），需要在 `config/config.ini` 中设置：
+
+```bash
+export DOUBAO_API_KEY="your_doubao_api_key_here"
+export DOUBAO_BASE_URL="https://ark.cn-beijing.volces.com/api/v3/chat/completions"
+export DOUBAO_MODEL_NAME="your_doubao_model_name_here"
+```
+
+> 启动前需先加载配置：`source config/config.ini`
+
+### 3) 目录准备
 
 建议预先创建目录：
 
@@ -260,7 +272,7 @@ Redis 用于会话历史和状态缓存：
 
 ---
 
-## ⚡ 快速运行
+## 快速运行
 
 ### 1) 安装依赖
 
@@ -277,11 +289,11 @@ python download_models.py
 
 > 脚本会把两个基础模型下载到 `train/pretrained/`：`chinese_roberta_wwm_ext` 和 `roberta_tiny_clue`。
 
-### 3) 训练模型（首次运行必须执行）
+### 4) 训练模型（首次运行必须执行）
 
 ```bash
 cd train
-# 训练意图模型（bert-large，平衡精度与效率）
+# 训练意图模型（RoBERTa-wwm-ext，平衡精度与效率）
 python run.py --model bert --data intent
 
 # 训练拒识模型（bert-tiny，极致效率，小模型大数据）
@@ -293,7 +305,7 @@ cd ..
 - `train/saved/intent/bert.ckpt`
 - `train/saved/reject/bert_tiny.ckpt`
 
-### 4) 启动服务
+### 5) 启动服务
 
 > 如需重启，先停止已有进程：`pkill -f python && pkill -f redis-server`
 
@@ -378,7 +390,7 @@ pkill -f redis-server
 
 ---
 
-## 📊 评测与性能测试
+## 评测与性能测试
 
 > 评测前需确保所有服务已启动，且 `train/saved/intent/bert.ckpt` 和 `train/saved/reject/bert_tiny.ckpt` 已存在。
 
@@ -474,7 +486,7 @@ python run.py --model bert_tiny --data reject   # 输出 Precision/Recall/F1/Acc
 python run.py --model bert --data intent         # 输出 Precision/Recall/F1/Accuracy/Acc@3/Acc@5
 ```
 
-**意图识别模型（bert-large）训练结果**：
+**意图识别模型（RoBERTa-wwm-ext）训练结果**：
 
 | 指标 | 数值 |
 |:---:|:---:|
@@ -496,7 +508,7 @@ python run.py --model bert --data intent         # 输出 Precision/Recall/F1/Ac
 
 ---
 
-## ⚠️ 已知限制
+## 已知限制
 
 | 限制 | 说明 |
 |:---:|:---|
@@ -506,7 +518,7 @@ python run.py --model bert --data intent         # 输出 Precision/Recall/F1/Ac
 
 ---
 
-## 📘 术语说明：意图与槽位
+## 术语说明：意图与槽位
 
 - **意图（Intent）**：用户要做什么，例如“导航到机场”“播放周杰伦”。
 - **槽位（Slot）**：完成意图所需参数，例如 `地点=首都机场`、`歌手=周杰伦`。
