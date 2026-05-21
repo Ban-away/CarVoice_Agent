@@ -393,9 +393,21 @@ python reject_client.py
 # 意图 TOP1 / TOP5 准确率
 python intent_client.py
 
-# 意图 + 槽位联合准确率
+# 意图 + 槽位联合准确率（汇总模式）
 python nlu_client.py
+
+# 意图 + 槽位联合准确率（详细模式）
+python nlu_client.py --verbose
 ```
+
+**两种模式区别**：
+
+| | `nlu_client.py` | `nlu_client.py --verbose` |
+|:---|:---|:---|
+| 进度条 | 显示 | 显示 |
+| 逐条错误输出 | 不显示 | 显示 `[FAIL]`（请求失败）和 `[SLOT MISS]`（intent 正确但 slots 错误的每条详情） |
+| Top 错误排名 | 不显示 | 显示前 20 个高频槽位错误类型及出现次数 |
+| 用途 | 快速查看准确率 | 定位具体错误模式、指导优化方向 |
 
 **实测结果**：
 
