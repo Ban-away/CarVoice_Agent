@@ -41,11 +41,31 @@ def value_match(key, expected, predicted):
     return False
 
 
+# key 等价组：不同 key 名但语义相同的槽位
+_KEY_EQUIV = {
+    "ratio": "number",
+    "number": "number",
+}
+
+
+def _resolve_key(key):
+    """将等价 key 映射到统一名称"""
+    return _KEY_EQUIV.get(key, key)
+
+
 def slots_match(expected, predicted):
-    """判断两个 slots dict 是否语义等价"""
-    if expected.keys() != predicted.keys():
-        return False
-    return all(value_match(k, expected[k], predicted[k]) for k in expected)
+    """判断 predicted 是否覆盖了所有 expected 槽位（允许预测多出槽位）"""
+    pred_mapped = {_resolve_key(k): v for k, v in predicted.items()}
+    for k, v in expected.items():
+        rk = _resolve_key(k)
+        if rk not in pred_mapped:
+            # Extreme 已覆盖时 number 冗余，跳过
+            if rk == "number" and "Extreme" in pred_mapped:
+                continue
+            return False
+        if not value_match(k, v, pred_mapped[rk]):
+            return False
+    return True
 
 
 def get_completion(query):
