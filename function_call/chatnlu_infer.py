@@ -333,6 +333,11 @@ async def inference(request: Request):
                         pos = None
             if pos:
                 slots["位置"] = pos
+        # 复合位置后处理：修正 LLM 将 主驾+右后 错判为 主副驾 等情况
+        if "位置" in expected_keys and "位置" in slots:
+            pos = _extract_position(query)
+            if pos in ("主对角", "副对角") and pos != slots["位置"]:
+                slots["位置"] = pos
         if "Extreme" in expected_keys and "Extreme" not in slots:
             ext = _extract_extreme(query)
             if ext:
