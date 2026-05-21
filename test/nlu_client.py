@@ -47,7 +47,13 @@ def value_match(key, expected, predicted):
 
     e, p = str(expected).strip(), str(predicted).strip()
 
-    # 数值等价：35% ≈ 0.35, -5/6 ≈ -0.833
+    # 复合位置归一化：副驾、左后 ↔ 副对角
+    if key == "位置":
+        e, p = _normalize_pos(e), _normalize_pos(p)
+        if e == p:
+            return True
+
+    # 数值等价：35% ≈ 0.35, -5/6 ≈ -0.833, 5/6 ≈ 0.833
     e_f, p_f = _to_float(e), _to_float(p)
     if e_f is not None and p_f is not None and abs(e_f - p_f) < 0.01:
         return True
