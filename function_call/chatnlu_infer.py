@@ -348,6 +348,13 @@ async def inference(request: Request):
                 if _is_vague_degree(query):
                     slots["number"] = "1"
 
+    # 格式修正：节目名称去除多余的"第"
+    if "节目名称" in slots:
+        val = slots["节目名称"]
+        val = re.sub(r'第(\d+)', r'\1', val)
+        val = re.sub(r'第([一二三四五六七八九十]+)', lambda m: _cn_num(m.group(1)), val)
+        slots["节目名称"] = val
+
     response = {
         "query": query,
         "trace_id": trace_id,
