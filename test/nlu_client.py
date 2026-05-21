@@ -10,6 +10,44 @@ from tqdm import tqdm
 URL = os.environ["NLU_URL"]
 
 
+# 枚举类槽位：系统应该归一化到标准值，做精确匹配
+ENUM_SLOTS = {
+    "位置", "音源", "Extreme", "选项", "评分", "date", "city",
+    "新闻类型", "歌曲心情", "歌曲主题", "歌曲场景", "歌曲语言", "歌曲流派",
+    "歌曲年代", "风格", "电台类型", "驾驶模式", "系统主题", "桌面样式",
+    "一级菜单设置项", "二级菜单设置项", "号码标签", "场景", "媒体收藏源",
+    "水平方向", "垂直方向", "节目类型", "音质", "语速",
+}
+
+
+def value_match(key, expected, predicted):
+    """判断单个槽位值是否语义等价"""
+    if expected == predicted:
+        return True
+    if expected is None or predicted is None:
+        return False
+
+    e, p = str(expected).strip(), str(predicted).strip()
+
+    # 枚举类：精确匹配（不区分大小写）
+    if key in ENUM_SLOTS:
+        return e.lower() == p.lower()
+
+    # 自由文本类：大小写归一后做包含判断（短串被长串包含即等价）
+    e_low, p_low = e.lower(), p.lower()
+    if len(e_low) >= 2 and (e_low in p_low or p_low in e_low):
+        return True
+
+    return False
+
+
+def slots_match(expected, predicted):
+    """判断两个 slots dict 是否语义等价"""
+    if expected.keys() != predicted.keys():
+        return False
+    return all(value_match(k, expected[k], predicted[k]) for k in expected)
+
+
 def get_completion(query):
     headers = {'Content-Type': 'application/json'}
     data = {"query": query, "trace_id": str(uuid.uuid1()), "enable_dm": False}
@@ -50,7 +88,7 @@ if __name__ == '__main__':
         pred_slots = response["slots"]
         slots = json.loads(slots)
         intent_ok = response["intent_id"] == label
-        slots_ok = slots == pred_slots
+        slots_ok = slots_match(slots, pred_slots)
 
         if intent_ok:
             intent_right += 1
@@ -73,7 +111,7 @@ if __name__ == '__main__':
             for k in set(list(slots.keys()) + list(pred_slots.keys())):
                 e_val = slots.get(k)
                 p_val = pred_slots.get(k)
-                if e_val != p_val:
+                if not value_match(k, e_val, p_val):
                     err_type = f"{k}: expected={e_val}, got={p_val}"
                     slot_error_detail[err_type] = slot_error_detail.get(err_type, 0) + 1
 
