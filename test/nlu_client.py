@@ -20,6 +20,24 @@ ENUM_SLOTS = {
 }
 
 
+def _to_float(s):
+    """尝试将字符串转为浮点数，失败返回 None"""
+    try:
+        s = s.strip().rstrip('%')
+        return float(s)
+    except (ValueError, TypeError):
+        pass
+    # 尝试解析分数如 "5/6", "-5/6", "4/5"
+    try:
+        if '/' in s:
+            parts = s.split('/')
+            if len(parts) == 2:
+                return float(parts[0]) / float(parts[1])
+    except (ValueError, TypeError, ZeroDivisionError):
+        pass
+    return None
+
+
 def value_match(key, expected, predicted):
     """判断单个槽位值是否语义等价"""
     if expected == predicted:
@@ -28,6 +46,11 @@ def value_match(key, expected, predicted):
         return False
 
     e, p = str(expected).strip(), str(predicted).strip()
+
+    # 数值等价：35% ≈ 0.35, -5/6 ≈ -0.833
+    e_f, p_f = _to_float(e), _to_float(p)
+    if e_f is not None and p_f is not None and abs(e_f - p_f) < 0.01:
+        return True
 
     # 枚举类：精确匹配（不区分大小写）
     if key in ENUM_SLOTS:
@@ -39,6 +62,26 @@ def value_match(key, expected, predicted):
         return True
 
     return False
+
+
+import re as _re
+
+
+def _normalize_pos(val):
+    """将复合位置描述归一化为标准值（副驾、左后 → 副对角 等）"""
+    v = val
+    v = v.replace('主驾驶', '主驾').replace('副驾驶', '副驾')
+    v = v.replace('右下方', '右后').replace('右后方', '右后').replace('右后侧', '右后')
+    v = v.replace('左下方', '左后').replace('左后方', '左后').replace('左后侧', '左后')
+    v = _re.sub(r'[、与跟以及还有，,\s]+', '和', v)
+    parts = set(p for p in v.split('和') if p)
+    if '主驾' in parts and '右后' in parts:
+        return '主对角'
+    if '副驾' in parts and '左后' in parts:
+        return '副对角'
+    if ('主驾' in parts and '副驾' in parts) or '主副驾' in parts:
+        return '主副驾'
+    return val
 
 
 # key 等价组：不同 key 名但语义相同的槽位
