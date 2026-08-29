@@ -2,6 +2,8 @@
 
 > 面向车载语音交互场景的**任务型对话 Agent 系统**  
 > 覆盖入口编排、意图识别、拒识过滤、函数调用式 NLU、对话管理、闲聊兜底、多轮改写与端到端评测流程
+>
+> orcarouter推广：https://www.orcarouter.ai/ref/ref_9a04a71c9017e602f49c
 
 [![Python](https://img.shields.io/badge/Python-3.9%2B-3776ab?logo=python&logoColor=white)](https://www.python.org)
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.0%2B-ee4c2c?logo=pytorch&logoColor=white)](https://pytorch.org)
