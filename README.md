@@ -11,7 +11,6 @@
 [![Redis](https://img.shields.io/badge/Redis-Required-dc382d?logo=redis&logoColor=white)](https://redis.io)
 
 [![Built with OrcaRouter](https://www.orcarouter.ai/badge.svg)](https://www.orcarouter.ai?ref=ref_9a04a71c9017e602f49c)
-
 ## LLM 后端
 本项目使用 OrcaRouter 网关，OpenAI兼容接口：
 ```python
@@ -20,8 +19,7 @@ client = OpenAI(
     base_url="https://api.orcarouter.ai/v1",
     api_key=os.getenv("ORCAROUTER_API_KEY")
 )
-
----
+```
 
 ## 📑 目录
 
