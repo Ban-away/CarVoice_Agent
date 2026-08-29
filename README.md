@@ -2,14 +2,24 @@
 
 > 面向车载语音交互场景的**任务型对话 Agent 系统**  
 > 覆盖入口编排、意图识别、拒识过滤、函数调用式 NLU、对话管理、闲聊兜底、多轮改写与端到端评测流程
->
-> orcarouter推广：https://www.orcarouter.ai/ref/ref_9a04a71c9017e602f49c
+
 
 [![Python](https://img.shields.io/badge/Python-3.9%2B-3776ab?logo=python&logoColor=white)](https://www.python.org)
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.0%2B-ee4c2c?logo=pytorch&logoColor=white)](https://pytorch.org)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115%2B-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
 [![Flask-SocketIO](https://img.shields.io/badge/Flask--SocketIO-5.x-black?logo=flask&logoColor=white)](https://flask-socketio.readthedocs.io)
 [![Redis](https://img.shields.io/badge/Redis-Required-dc382d?logo=redis&logoColor=white)](https://redis.io)
+
+[![Built with OrcaRouter](https://www.orcarouter.ai/badge.svg)](https://www.orcarouter.ai?ref=ref_9a04a71c9017e602f49c)
+
+## LLM 后端
+本项目使用 OrcaRouter 网关，OpenAI兼容接口：
+```python
+from openai import OpenAI
+client = OpenAI(
+    base_url="https://api.orcarouter.ai/v1",
+    api_key=os.getenv("ORCAROUTER_API_KEY")
+)
 
 ---
 
