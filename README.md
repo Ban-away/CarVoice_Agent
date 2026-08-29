@@ -9,7 +9,12 @@
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115%2B-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
 [![Flask-SocketIO](https://img.shields.io/badge/Flask--SocketIO-5.x-black?logo=flask&logoColor=white)](https://flask-socketio.readthedocs.io)
 [![Redis](https://img.shields.io/badge/Redis-Required-dc382d?logo=redis&logoColor=white)](https://redis.io)
-[![Powered by OrcaRouter](https://img.shields.io/badge/Powered_by-OrcaRouter-2563eb)](https://www.orcarouter.ai?ref=ref_9a04a71c9017e602f49c)
+[![Powered by OrcaRouter](https://img.shields.io/badge/Powered_by-OrcaRouter-2563eb)](https://www.orcarouter.ai/ref/ref_9a04a71c9017e602f49c)
+
+> [!TIP]
+> #### 🚀 直接使用
+>
+> 进入 [OrcaRouter 平台](https://www.orcarouter.ai/ref/ref_9a04a71c9017e602f49c) 。OrcaRouter 除了支持主流的 GPT、Claude 等大模型，还提供 DeepSeek V4 Pro、DeepSeek V4 Flash、千问 3.8 等免费模型。具体模型、额度和使用规则以平台当前页面为准。
 
 ## LLM 后端
 本项目使用 OrcaRouter 网关，OpenAI兼容接口：
@@ -18,7 +23,7 @@ from openai import OpenAI
 
 client = OpenAI(
     base_url="https://api.orcarouter.ai/v1",
-    api_key="sk-orca-YOUR_KEY",  # Get key at https://api.orcarouter.ai/ref/ref_9a04a71c9017e602f49c
+    api_key="sk-orca-YOUR_KEY",  # Get key at https://www.orcarouter.ai/ref/ref_9a04a71c9017e602f49c
 )
 ```
 
