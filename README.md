@@ -9,7 +9,7 @@
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115%2B-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
 [![Flask-SocketIO](https://img.shields.io/badge/Flask--SocketIO-5.x-black?logo=flask&logoColor=white)](https://flask-socketio.readthedocs.io)
 [![Redis](https://img.shields.io/badge/Redis-Required-dc382d?logo=redis&logoColor=white)](https://redis.io)
-[![Built with OrcaRouter](https://www.orcarouter.ai/badge.svg)](https://www.orcarouter.ai?ref=ref_9a04a71c9017e602f49c)
+[![OrcaRouter](https://www.orcarouter.ai/badge.svg)](https://www.orcarouter.ai?ref=ref_9a04a71c9017e602f49c)
 ## LLM 后端
 本项目使用 OrcaRouter 网关，OpenAI兼容接口：
 ```python
